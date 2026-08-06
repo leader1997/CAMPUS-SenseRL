@@ -1,0 +1,104 @@
+{
+  "metrics": [
+    {
+      "step": 2048,
+      "rollout_reward": -216.37297540204938
+    },
+    {
+      "step": 4096,
+      "rollout_reward": -212.28722088449763
+    },
+    {
+      "step": 6144,
+      "rollout_reward": -181.42642782321292
+    },
+    {
+      "step": 8192,
+      "rollout_reward": -207.15257612830123
+    },
+    {
+      "step": 10240,
+      "rollout_reward": -163.28287084789446
+    },
+    {
+      "step": 12288,
+      "rollout_reward": -192.29772830703683
+    },
+    {
+      "step": 14336,
+      "rollout_reward": -202.35776550377645
+    },
+    {
+      "step": 16384,
+      "rollout_reward": -172.97224051830386
+    },
+    {
+      "step": 18432,
+      "rollout_reward": -79.69346799929296
+    },
+    {
+      "step": 20480,
+      "rollout_reward": -177.22842923211476
+    },
+    {
+      "step": 22528,
+      "rollout_reward": -206.67407622694572
+    },
+    {
+      "step": 24576,
+      "rollout_reward": -164.54467652949518
+    },
+    {
+      "step": 26624,
+      "rollout_reward": -194.900301444204
+    },
+    {
+      "step": 28672,
+      "rollout_reward": -160.75058698283087
+    },
+    {
+      "step": 30720,
+      "rollout_reward": -200.9891018232905
+    },
+    {
+      "step": 32768,
+      "rollout_reward": -205.43178609153873
+    },
+    {
+      "step": 34816,
+      "rollout_reward": -197.27683500846112
+    },
+    {
+      "step": 36864,
+      "rollout_reward": -128.95743992280126
+    },
+    {
+      "step": 38912,
+      "rollout_reward": -123.04464873852099
+    },
+    {
+      "step": 40960,
+      "rollout_reward": -211.86510168576444
+    },
+    {
+      "step": 43008,
+      "rollout_reward": -188.3254781550811
+    },
+    {
+      "step": 45056,
+      "rollout_reward": -167.59321808334983
+    },
+    {
+      "step": 47104,
+      "rollout_reward": -183.18902798805817
+    },
+    {
+      "step": 49152,
+      "rollout_reward": -179.1693077079565
+    },
+    {
+      "step": 50000,
+      "rollout_reward": -78.58119401615178
+    }
+  ]
+}

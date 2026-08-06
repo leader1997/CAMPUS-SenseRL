@@ -1,0 +1,24 @@
+\begin{table}[t]
+\centering
+\caption{Communication policy comparison on the validation subset (single-run subset evaluation).}
+\label{tab:policies}
+\begin{tabular}{lcccccc}
+\toprule
+Method & Transmission\_Reduction\_pct & CO2\_MAE\_skips & Event\_Recall\_pct & Event\_F1 & Mean\_AoI & Max\_AoI \\
+\midrule
+Fixed 15 min & 0 & 0 & 100 & 1 & 0.01 & 8 \\
+Fixed 30 min & 50.2 & 10.7 & 55 & 0.667 & 0.72 & 8 \\
+Fixed 45 min & 66.6 & 12.1 & 30 & 0.32 & 1.41 & 8 \\
+Fixed 60 min & 75.3 & 13.5 & 30 & 0.235 & 2.17 & 8 \\
+Change threshold & 58.7 & 10.6 & 100 & 0.92 & 1.42 & 8 \\
+Uncertainty heuristic & 99.9 & 24.5 & 0 & --- & 7.94 & 8 \\
+AoI threshold & 80 & 12.7 & 27.5 & 0.275 & 2 & 8 \\
+CO2 threshold & 100 & 72 & 5 & 0.001 & 8 & 8 \\
+Info-value heuristic & 99.6 & 30.3 & 50 & 0.04 & 7.85 & 8 \\
+Random (matched 30min) & 50.9 & 11.9 & 55 & 0.595 & 1 & 8 \\
+Random (matched 45min) & 67.1 & 13.8 & 30 & 0.233 & 1.9 & 8 \\
+Random (matched 60min) & 75.9 & 14.9 & 32.5 & 0.206 & 2.76 & 8 \\
+Semantic + safety shield (proxy) & 88.3 & 13.8 & 67.5 & 0.406 & 3.88 & 8 \\
+\bottomrule
+\end{tabular}
+\end{table}

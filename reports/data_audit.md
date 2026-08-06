@@ -179,7 +179,7 @@ in this release. RSSI (`rssi`) and SNR (`lsnr`) are available.
 - ERS CO2 devices in metadata: **299**
 - CO₂ non-null observations (application): **7,314,217**
 
-CO₂ sample stats: `{'n': 110000, 'min': 79.0, 'max': 65509.0, 'mean': 663.7373, 'std': 3624.9969983282344, 'median': 456.0, 'p5': 300.0, 'p95': 601.0}`
+CO₂ sample stats: `{'n': 110000, 'min': 33.0, 'max': 65476.0, 'mean': 634.6629, 'std': 3351.8474358844865, 'median': 456.0, 'p5': 300.0, 'p95': 601.0}`
 
 ---
 

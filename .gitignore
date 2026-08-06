@@ -5,20 +5,9 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-*.pt
-*.pth
-*.ckpt
 logs/
 .DS_Store
 Thumbs.db
-
-# Generated data / experiment artifacts (regenerate via pipeline)
-data/interim/
-data/processed/
-outputs/
-paper_outputs/
-figures/eda/
-figures/paper/
 
 # Keep directory placeholders
 !data/raw/README.md

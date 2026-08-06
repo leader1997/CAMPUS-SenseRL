@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering
+\caption{Causal CO2 reconstruction results on the validation set (40\textbackslash{}\% random mask).}
+\label{tab:reconstruction}
+\begin{tabular}{lcccc}
+\toprule
+Model & MAE & RMSE & R2 & Event\_Recall \\
+\midrule
+Last observation (LOCF) & 13 & 64.8 & 0.792 & 0.87 \\
+Linear extrapolation & 23.4 & 132 & 0.14 & 0.863 \\
+KNN neighbours & 76.4 & 151 & -0.131 & 0 \\
+ExtraTrees & 10.9 & 51.7 & 0.875 & 0.889 \\
+LightGBM & 11.6 & 53.5 & 0.866 & 0.848 \\
+Masked ST-GNN & 16.8 & 58.3 & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table}

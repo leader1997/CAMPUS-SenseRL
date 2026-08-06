@@ -1,0 +1,7 @@
+Model,MAE,RMSE,R2,Event_Recall
+Last observation (LOCF),12.97,64.79,0.792,0.87
+Linear extrapolation,23.36,131.82,0.14,0.863
+KNN neighbours,76.37,151.21,-0.131,0.0
+ExtraTrees,10.93,51.73,0.875,0.889
+LightGBM,11.56,53.51,0.866,0.848
+Masked ST-GNN,16.84,58.33,---,---
