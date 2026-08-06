@@ -1,0 +1,30 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.pt
+*.pth
+*.ckpt
+logs/
+.DS_Store
+Thumbs.db
+
+# Large raw LoRaWAN CSVs (keep locally; do NOT push to GitHub)
+oulu-smartcampus-release-2021062801/application.csv
+oulu-smartcampus-release-2021062801/lora.csv
+
+# Generated data / experiment artifacts (regenerate via pipeline)
+data/interim/
+data/processed/
+outputs/
+paper_outputs/
+figures/eda/
+figures/paper/
+
+# Keep directory placeholders
+!data/raw/README.md
+!data/interim/.gitkeep
+!data/processed/.gitkeep

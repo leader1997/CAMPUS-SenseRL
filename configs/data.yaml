@@ -1,0 +1,67 @@
+# CAMPUS-SenseRL configuration defaults
+# Paths are relative to repository root unless absolute.
+
+project:
+  name: CAMPUS-SenseRL
+  seed: 42
+
+paths:
+  raw_release: oulu-smartcampus-release-2021062801
+  data_raw: data/raw
+  data_interim: data/interim
+  data_processed: data/processed
+  outputs: outputs
+  figures: figures
+  reports: reports
+  logs: logs
+
+dataset:
+  application_file: application.csv
+  lora_file: lora.csv
+  devices_file: devices.json
+  # Official deployment interval (seconds)
+  nominal_interval_sec: 900
+  timezone: UTC
+
+# Primary research target
+target:
+  primary: co2
+  secondary: [temperature, humidity]
+  # Only devices that actually measure CO2
+  co2_device_types:
+    - "Elsys ERS CO2"
+
+# Chronological split (no shuffle)
+splits:
+  train_frac: 0.60
+  val_frac: 0.20
+  test_frac: 0.20
+  # Optional rolling-origin robustness
+  rolling_origin:
+    enabled: true
+    n_folds: 3
+
+preprocess:
+  drop_exact_duplicates: true
+  # Regular 15-minute grid (supported by deployment)
+  resample_rule: "15min"
+  keep_raw_values: true
+  # Join LoRa network fields when timestamps/deveui match
+  merge_lora: true
+  # Maximum time delta for joining application and lora rows (ms)
+  lora_join_tolerance_ms: 2000
+  # Physically implausible CO2 (retained in co2_raw, cleared in co2)
+  co2_min_ppm: 200
+  co2_max_ppm: 5000
+
+features:
+  history_window: 8  # past intervals only
+  rolling_windows: [4, 8, 16]  # past-only rolling stats
+  include_network_features: true
+  include_motion: true
+  include_battery: true
+
+# Device ID normalization
+identifiers:
+  # application/lora use dashed lowercase MAC; devices.json uses uppercase hex without dashes
+  normalize_deveui: true

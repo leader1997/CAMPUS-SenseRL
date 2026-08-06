@@ -1,0 +1,50 @@
+# Experiment orchestration
+seed: 42
+n_seeds: 5
+final_n_seeds: 10
+
+hypotheses:
+  - id: H1
+    description: Adaptive communication reduces transmissions while maintaining reconstruction accuracy.
+  - id: H2
+    description: Semantic-aware scheduling preserves important CO2 events better than fixed/error-based policies at matched budgets.
+  - id: H3
+    description: Spatiotemporal cooperation allows larger reductions than independent policies.
+  - id: H4
+    description: Uncertainty and AoI constraints improve reliability and reduce missed events.
+  - id: H5
+    description: Constrained MARL achieves a better communication-information trade-off than static/heuristic/single-agent policies.
+
+communication_budgets: [1.0, 0.8, 0.6, 0.4, 0.2]
+
+ablations:
+  - no_graph
+  - no_motion
+  - no_network
+  - no_uncertainty
+  - no_aoi
+  - no_semantic
+  - no_safety_shield
+  - independent_vs_marl
+  - spatial_vs_correlation_vs_hybrid
+  - fixed_vs_heuristic_vs_rl
+  - reconstruction_only_vs_recon_plus_rl
+  - rl_without_event_awareness
+
+robustness:
+  packet_loss_rates: [0.0, 0.1, 0.2]
+  missingness_rates: [0.1, 0.2, 0.4, 0.6]
+  sensor_outage: true
+  network_degradation: true
+  event_thresholds_ppm: [800, 1000, 1200, 1500]
+
+statistics:
+  confidence_level: 0.95
+  bootstrap_samples: 1000
+  report_worst_sensor: true
+  report_p10: true
+
+outputs:
+  figures_dir: figures/paper
+  tables_dir: outputs/tables
+  report_path: reports/research_report.md

@@ -1,0 +1,56 @@
+# Reconstruction model configuration
+seed: 42
+
+target: co2
+device_types:
+  - "Elsys ERS CO2"
+
+history_window: 8
+mask_rates: [0.1, 0.2, 0.4, 0.6, 0.8]
+mask_schemes:
+  - random
+  - temporal_block
+  - sensor_outage
+  - floor_outage
+
+baselines:
+  - locf
+  - historical_mean
+  - historical_median
+  - linear_extrapolation
+  - seasonal_historical
+  - knn_neighbors
+  - extratrees
+  - lightgbm
+
+neural:
+  name: masked_st_graph
+  hidden_dim: 64
+  n_layers: 2
+  n_heads: 4
+  dropout: 0.1
+  use_uncertainty: true
+  loss: gaussian_nll
+  lr: 0.001
+  weight_decay: 1.0e-5
+  batch_size: 32
+  epochs: 15
+  early_stopping_patience: 5
+  grad_clip: 1.0
+  # Practical default for first runs; override with --max-sensors or null for all
+  default_max_sensors: 40
+  history_window: 8
+  stride: 4
+
+features:
+  use_graph: true
+  use_motion: true
+  use_network: true
+  use_battery: true
+  use_aoi: true
+  use_time: true
+
+evaluation:
+  metrics: [mae, rmse, smape, r2, event_recall, event_precision]
+  # Future interpolation is offline upper-bound only (non-causal)
+  include_noncausal_interpolation_reference: true

@@ -1,0 +1,39 @@
+# Graph construction configuration
+# Edges represent statistical/spatial relationships, NOT ventilation topology.
+
+seed: 42
+
+spatial:
+  # Connect same floor + geographic kNN
+  knn_k: 8
+  max_distance_m: 80.0
+  same_floor_boost: true
+  # Location in devices.json appears as WGS84 lat/lon (Oulu), despite README
+  # mentioning Web Mercator. We treat values as WGS84.
+  coordinate_crs: WGS84
+
+correlation:
+  # Computed on TRAINING DATA ONLY
+  method: pearson
+  min_abs_corr: 0.55
+  max_neighbors: 10
+  # Variable used for correlation (CO2 sensors only for primary graph)
+  variable: co2
+  min_overlap_obs: 200
+
+hybrid:
+  # Weighted combination of spatial proximity and correlation
+  spatial_weight: 0.4
+  correlation_weight: 0.6
+  knn_k: 8
+  min_edge_score: 0.25
+
+learned:
+  enabled: false
+  # Optional; enable only if compute budget allows
+  max_epochs: 50
+
+outputs:
+  dir: outputs/graphs
+  save_npz: true
+  save_adjacency: true

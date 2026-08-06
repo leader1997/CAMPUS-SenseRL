@@ -1,0 +1,88 @@
+# Reinforcement learning configuration
+seed: 42
+
+env:
+  name: TraceDrivenCampusEnv
+  target: co2
+  interval_minutes: 15
+  max_aoi: 8  # intervals (2 hours)
+  max_uncertainty: 2.0  # normalized
+  # Action: 0=SKIP, 1=TRANSMIT
+  action_space: binary
+
+communication:
+  transmit_cost: 1.0
+  skip_cost: 0.0
+  # Estimated airtime/energy only if LoRa params available; otherwise proxy
+  use_estimated_energy: false
+
+reward:
+  w_tx: 1.0
+  w_err: 1.0
+  w_aoi: 0.5
+  w_unc: 0.5
+  w_miss: 5.0
+  w_event: 1.0
+  clip: 10.0
+  normalize_components: true
+
+safety_shield:
+  enabled: true
+  force_transmit_if:
+    aoi_exceeds: 8
+    uncertainty_exceeds: 2.0
+    co2_exceeds: 1200
+    co2_rate_exceeds: 150  # ppm per interval
+    neighbor_disagreement_exceeds: 200  # ppm
+
+events:
+  co2_thresholds_ppm: [800, 1000, 1200, 1500]
+  primary_threshold_ppm: 1000
+  rapid_increase_ppm: 150
+  persistent_high_intervals: 3
+
+budgets:
+  transmission_fractions: [1.0, 0.8, 0.6, 0.4, 0.2]
+
+curriculum:
+  enabled: true
+  stages:
+    - max_skip_prob: 0.2
+    - max_skip_prob: 0.4
+    - max_skip_prob: 0.6
+    - max_skip_prob: 1.0
+  steps_per_stage: 50000
+
+ppo:
+  lr: 3.0e-4
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.01
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+  n_steps: 2048
+  batch_size: 256
+  n_epochs: 10
+  total_timesteps: 200000
+
+mappo:
+  parameter_sharing: true
+  centralized_critic: true
+  lr: 3.0e-4
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.01
+  total_timesteps: 300000
+
+training:
+  n_seeds: 5
+  early_stopping_patience: 10
+  eval_every_steps: 10000
+  checkpoint_dir: outputs/experiments
+
+baselines:
+  fixed_intervals_min: [15, 30, 45, 60]
+  random_match_budgets: true
+  threshold_policies: true
