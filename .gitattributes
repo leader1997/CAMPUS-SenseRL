@@ -1,0 +1,2 @@
+oulu-smartcampus-release-2021062801/application.csv filter=lfs diff=lfs merge=lfs -text
+oulu-smartcampus-release-2021062801/lora.csv filter=lfs diff=lfs merge=lfs -text
