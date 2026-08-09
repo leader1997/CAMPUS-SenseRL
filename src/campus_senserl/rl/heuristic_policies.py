@@ -11,13 +11,22 @@ from campus_senserl.rl.info_value import InfoValueWeights, information_value
 
 
 def _n_agents(obs: np.ndarray) -> int:
-    return obs.shape[0] if obs.ndim == 2 else obs.shape[0] // 10
+    if obs.ndim == 2:
+        return int(obs.shape[0])
+    flat = int(obs.shape[0])
+    for d in (14, 10, 12, 16):
+        if flat % d == 0:
+            return flat // d
+    return flat
 
 
 @dataclass
 class ChangeThresholdPolicy:
     delta_ppm: float = 50.0
     name: str = "change_threshold"
+
+    def __post_init__(self) -> None:
+        self._last_local = None
 
     def reset(self) -> None:
         self._last_local = None
@@ -49,7 +58,7 @@ class UncertaintyThresholdPolicy:
     def act(self, obs: np.ndarray, *, local_available: np.ndarray | None = None) -> np.ndarray:
         n = _n_agents(obs)
         obs2 = obs.reshape(n, -1) if obs.ndim == 1 else obs
-        unc = obs2[:, 4] * 5.0
+        unc = obs2[:, 5] * 5.0
         actions = np.where(unc >= self.threshold, TRANSMIT, SKIP).astype(int)
         if local_available is not None:
             actions = np.where(local_available, actions, SKIP)
@@ -67,7 +76,7 @@ class AoIThresholdPolicy:
     def act(self, obs: np.ndarray, *, local_available: np.ndarray | None = None) -> np.ndarray:
         n = _n_agents(obs)
         obs2 = obs.reshape(n, -1) if obs.ndim == 1 else obs
-        aoi = obs2[:, 2] * 8.0
+        aoi = obs2[:, 3] * 8.0
         actions = np.where(aoi >= self.threshold, TRANSMIT, SKIP).astype(int)
         if local_available is not None:
             actions = np.where(local_available, actions, SKIP)
@@ -98,6 +107,9 @@ class InfoValuePolicy:
     weights: InfoValueWeights | None = None
     name: str = "info_value"
 
+    def __post_init__(self) -> None:
+        self._last_local = None
+
     def reset(self) -> None:
         self._last_local = None
 
@@ -109,13 +121,15 @@ class InfoValuePolicy:
             local = obs2[i, 0] * 1500.0
             baseline = obs2[i, 1] * 1500.0
             rate = 0.0 if self._last_local is None else local - self._last_local[i]
+            # Obs schema: 0 local, 1 last_tx, 2 delta, 3 aoi, 4 recon, 5 unc, 6 motion
             iv = information_value(
                 local_value=local,
                 baseline=baseline,
-                rate_of_change=rate,
-                motion=obs2[i, 9] * 50.0,
-                uncertainty=obs2[i, 4] * 5.0,
-                aoi=obs2[i, 2] * 8.0,
+                rate_of_change=rate if self._last_local is not None else float(obs2[i, 2] * 1500.0),
+                motion=obs2[i, 6] * 50.0,
+                uncertainty=obs2[i, 5] * 5.0,
+                aoi=obs2[i, 3] * 8.0,
+                neighbor_disagreement=abs(local - obs2[i, 4] * 1500.0),
                 weights=self.weights,
             )["total"]
             if iv >= self.threshold:

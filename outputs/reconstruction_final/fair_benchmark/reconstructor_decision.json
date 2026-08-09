@@ -1,0 +1,37 @@
+{
+  "best_by_mae": "locf",
+  "mae_ranking": [
+    {
+      "method": "locf",
+      "mean": 10.342706429017955,
+      "std": 0.053100868476216576
+    },
+    {
+      "method": "extratrees",
+      "mean": 12.164310692602374,
+      "std": 0.054917304521748714
+    },
+    {
+      "method": "lightgbm",
+      "mean": 12.373710606857864,
+      "std": 0.07648134186655035
+    },
+    {
+      "method": "stgnn",
+      "mean": 17.531794357299805,
+      "std": 0.16238730131385867
+    },
+    {
+      "method": "linear_extrapolation",
+      "mean": 19.719879931441476,
+      "std": 0.12493817665653803
+    },
+    {
+      "method": "historical_mean",
+      "mean": 24.754790730543483,
+      "std": 0.12902856302265608
+    }
+  ],
+  "rule": "Prefer ST-GNN only with genuine advantage; else use best causal (ExtraTrees/LightGBM/LOCF).",
+  "summary_csv": "C:\\Users\\MossabBatal\\Desktop\\OULU_RL\\outputs\\reconstruction_final\\fair_benchmark\\fair_results_summary.csv"
+}

@@ -1,0 +1,83 @@
+# Boosted MAPPO learning config — train WITHOUT shield; BC + residual expert.
+seed: 42
+
+environment:
+  reconstructor: locf
+  proposed_backend: locf
+  reconstructor_checkpoint: outputs/models/reconstruction/best_model.pt
+  graph: hybrid
+  graph_fail_fast: true
+  cohort: final
+
+env:
+  name: TraceDrivenCampusEnv
+  target: co2
+  interval_minutes: 15
+  max_aoi: 8
+  max_uncertainty: 2.0
+  action_space: binary
+
+communication:
+  transmit_cost: 1.0
+  skip_cost: 0.0
+  use_estimated_energy: false
+
+# Reshaped for learning: TX is cheaper; miss/event/err dominate; soft budget
+reward:
+  w_tx: 0.35
+  w_err: 2.0
+  w_aoi: 1.0
+  w_unc: 0.5
+  w_miss: 8.0
+  w_event: 4.0
+  w_budget: 1.5
+  clip: 20.0
+  normalize_components: false
+
+# Shield OFF for training (policy must learn). Enable only at selected evals.
+safety_shield:
+  enabled: false
+  force_transmit_if:
+    aoi_exceeds: 8
+    uncertainty_exceeds: 2.0
+    co2_exceeds: 1200
+    co2_rate_exceeds: 150
+    neighbor_disagreement_exceeds: 200
+
+events:
+  co2_thresholds_ppm: [800, 1000, 1200, 1500]
+  primary_threshold_ppm: 1000
+  rapid_increase_ppm: 150
+  persistent_high_intervals: 3
+
+boosted:
+  bc_steps: 15000
+  bc_lr: 1.0e-3
+  expert_mix_start: 0.4
+  expert_mix_end: 0.02
+  # ~Fixed-45–60 operating point (TX rate among available)
+  target_tx_rate: 0.28
+
+mappo:
+  parameter_sharing: true
+  centralized_critic: true
+  lr: 3.0e-4
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.05
+  vf_coef: 0.5
+  n_steps: 1024
+  batch_size: 512
+  n_epochs: 4
+  total_timesteps: 120000
+
+ppo:
+  n_steps: 1024
+  batch_size: 512
+  n_epochs: 4
+
+training:
+  n_seeds: 1
+  eval_every_steps: 15000
+  checkpoint_dir: outputs/rl_final/mappo_boosted

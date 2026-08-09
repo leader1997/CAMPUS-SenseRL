@@ -1,0 +1,6 @@
+{
+  "delta_ppm": 35.0,
+  "aoi_threshold": 3.5,
+  "co2_ppm": 1000.0,
+  "disagreement_ppm": 20.0
+}

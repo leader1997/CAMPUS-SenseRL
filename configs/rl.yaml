@@ -1,6 +1,20 @@
 # Reinforcement learning configuration
 seed: 42
 
+# Environment reconstruction / graph wiring (scientific defaults)
+environment:
+  # locf | extratrees | lightgbm | stgnn | proposed_reconstructor
+  reconstructor: locf
+  # When reconstructor=proposed_reconstructor, resolve to:
+  proposed_backend: locf
+  reconstructor_checkpoint: outputs/models/reconstruction/best_model.pt
+  # identity | spatial | correlation | hybrid
+  graph: hybrid
+  # Fail hard if configured graph cannot load (required for paper runs)
+  graph_fail_fast: true
+  # debug | development | final  (from outputs/cohorts/)
+  cohort: final
+
 env:
   name: TraceDrivenCampusEnv
   target: co2
@@ -36,10 +50,13 @@ safety_shield:
     neighbor_disagreement_exceeds: 200  # ppm
 
 events:
+  # PRIMARY paper threshold (monitoring/event thresholds — not medical limits)
   co2_thresholds_ppm: [800, 1000, 1200, 1500]
   primary_threshold_ppm: 1000
   rapid_increase_ppm: 150
   persistent_high_intervals: 3
+  # Sensitivity analysis (validation only; never tune on test):
+  # 800, 1000, 1200, 1500 ppm
 
 budgets:
   transmission_fractions: [1.0, 0.8, 0.6, 0.4, 0.2]

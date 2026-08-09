@@ -1,0 +1,97 @@
+{
+  "profile": "paper",
+  "cohort": "final",
+  "n_sensors": 40,
+  "sensor_ids": [
+    "A81758FFFE030D49",
+    "A81758FFFE030D4A",
+    "A81758FFFE030D4B",
+    "A81758FFFE030D4C",
+    "A81758FFFE030D4D",
+    "A81758FFFE030D4E",
+    "A81758FFFE030D4F",
+    "A81758FFFE030D50",
+    "A81758FFFE030D51",
+    "A81758FFFE030D52",
+    "A81758FFFE030F43",
+    "A81758FFFE030F44",
+    "A81758FFFE030F45",
+    "A81758FFFE030F46",
+    "A81758FFFE030F47",
+    "A81758FFFE030F48",
+    "A81758FFFE030F49",
+    "A81758FFFE030F4B",
+    "A81758FFFE030F4C",
+    "A81758FFFE030F4D",
+    "A81758FFFE030F4E",
+    "A81758FFFE030F4F",
+    "A81758FFFE030F51",
+    "A81758FFFE030F53",
+    "A81758FFFE030F54",
+    "A81758FFFE030F58",
+    "A81758FFFE030F59",
+    "A81758FFFE030F5A",
+    "A81758FFFE030F5B",
+    "A81758FFFE030F5D",
+    "A81758FFFE030F5E",
+    "A81758FFFE030F5F",
+    "A81758FFFE030F61",
+    "A81758FFFE030F63",
+    "A81758FFFE030F64",
+    "A81758FFFE030F65",
+    "A81758FFFE030F66",
+    "A81758FFFE030F67",
+    "A81758FFFE030F68",
+    "A81758FFFE030F69"
+  ],
+  "reconstructor": "locf",
+  "reconstructor_note": "Fair benchmark best_by_mae=locf; RL uses LOCF online until sequential tree/GNN adapter matches cohort.",
+  "graph": "hybrid",
+  "primary_co2_threshold_ppm": 1000,
+  "rapid_increase_ppm": 150,
+  "ppo_steps": 100000,
+  "mappo_steps": 150000,
+  "seeds": [
+    42,
+    123,
+    2024,
+    3407,
+    9999
+  ],
+  "eval_steps_val": 1200,
+  "device": "cuda",
+  "fair_benchmark": {
+    "best_by_mae": "locf",
+    "mae_ranking": [
+      {
+        "method": "locf",
+        "mean": 10.342706429017955,
+        "std": 0.053100868476216576
+      },
+      {
+        "method": "extratrees",
+        "mean": 12.15356469328579,
+        "std": 0.0
+      },
+      {
+        "method": "lightgbm",
+        "mean": 12.427550572379,
+        "std": 0.0
+      },
+      {
+        "method": "linear_extrapolation",
+        "mean": 19.719879931441476,
+        "std": 0.12493817665653803
+      },
+      {
+        "method": "historical_mean",
+        "mean": 24.754790730543483,
+        "std": 0.12902856302265608
+      }
+    ],
+    "rule": "Prefer ST-GNN only with genuine advantage; else use best causal (ExtraTrees/LightGBM/LOCF).",
+    "summary_csv": "C:\\Users\\MossabBatal\\Desktop\\OULU_RL\\outputs\\reconstruction_final\\fair_benchmark\\fair_results_summary.csv"
+  },
+  "frozen": true,
+  "warning": "Do not tune using test results after this file is written."
+}

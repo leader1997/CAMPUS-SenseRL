@@ -164,7 +164,15 @@ def main() -> None:
 
     if args.paper_only:
         print_device_banner(device)
-        run_step("12 paper outputs", ["scripts/12_generate_paper_outputs.py"])
+        print(
+            "[pipeline] Prefer frozen paper artifacts under paper_outputs/ "
+            "and outputs/rl_final/scientific_validation/. "
+            "Regenerate with scripts/21_final_paper_results.py / 22_scientific_validation.py"
+        )
+        run_step(
+            "22 scientific validation figures",
+            ["scripts/22_scientific_validation.py", "--figures-only", "--device", device],
+        )
         print("\n[pipeline] COMPLETE - see paper_outputs/")
         return
 
@@ -261,14 +269,18 @@ def main() -> None:
         ]
 
     if not args.skip_ablations:
+        # Legacy synthetic ablations (09) removed — use scripts/22_scientific_validation.py
         steps += [
-            ("09 ablations", ["scripts/09_run_ablations.py"], ("outputs/tables/ablations.csv",)),
-            ("10 robustness", ["scripts/10_run_robustness.py"], ("outputs/robustness/robustness.csv",)),
+            (
+                "10 robustness (MAPPO seed_42)",
+                ["scripts/10_run_robustness.py", "--seed", "42"],
+                ("outputs/robustness_final/robustness_mappo_val.csv",),
+            ),
         ]
 
     steps.append(
         (
-            "12 paper outputs",
+            "12 legacy paper pack (optional early figs)",
             ["scripts/12_generate_paper_outputs.py"],
             ("paper_outputs/Figure_Index.md",),
         )

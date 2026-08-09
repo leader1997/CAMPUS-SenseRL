@@ -81,7 +81,7 @@ This runs audit → preprocess → graphs → reconstruction → baselines → R
 
 ---
 
-## Pipeline scripts (01–12)
+## Pipeline scripts
 
 | Step | Script | Purpose |
 |------|--------|---------|
@@ -90,43 +90,36 @@ This runs audit → preprocess → graphs → reconstruction → baselines → R
 | 03 | `scripts/03_build_graph.py` | Spatial, correlation (train-only), hybrid graphs |
 | 04 | `scripts/04_train_reconstruction.py` | Train masked spatiotemporal graph reconstructor |
 | 05 | `scripts/05_evaluate_reconstruction.py` | Neural reconstruction + LOCF/mean metrics |
-| 05b | `scripts/05b_run_reconstruction_baselines.py` | Full classical causal baselines (+ non-causal upper bound) |
-| 06 | `scripts/06_train_rl.py` | Centralized PPO communication policy |
-| 07 | `scripts/07_train_marl.py` | Parameter-sharing MAPPO (CTDE) |
+| 05b | `scripts/05b_run_reconstruction_baselines.py` | Classical causal baselines |
+| 06 | `scripts/06_train_rl.py` | Centralized PPO (negative / early baseline) |
+| 07 | `scripts/07_train_marl.py` | Parameter-sharing MAPPO (negative baseline) |
 | 08 | `scripts/08_run_baselines.py` | Fixed-interval and heuristic baselines |
-| 09 | `scripts/09_run_ablations.py` | Ablation configs → `outputs/tables/ablations.csv` |
-| 10 | `scripts/10_run_robustness.py` | Packet loss / missingness / threshold sweeps |
-| 11 | `scripts/11_generate_paper_results.py` | Aggregate metrics into `outputs/` (legacy helper) |
-| 12 | `scripts/12_generate_paper_outputs.py` | **Manuscript figures/tables** → `paper_outputs/` |
+| 10 | `scripts/10_run_robustness.py` | MAPPO packet-loss smoke (seed_42) |
+| 12 | `scripts/12_generate_paper_outputs.py` | Early manuscript helpers (legacy pack) |
+| 13 | `scripts/13_run_finalization.py` | Cohort freeze + fair recon benchmark |
+| 16 | `scripts/16_distill_expert_policy.py` | BC distillation from semantic expert |
+| 17 | `scripts/17_paper_asap_pipeline.py` | Expert + BC multi-seed ASAP pipeline |
+| 19 | `scripts/19_train_cmappo.py` | Train KL-CMAPPO from a BC checkpoint |
+| 21 | `scripts/21_final_paper_results.py` | **Frozen 5-seed KL-CMAPPO + test** |
+| 22 | `scripts/22_scientific_validation.py` | **Matched-budget / robustness / ablation / held-out** |
 
-Publication figures and tables are written only to:
+Authoritative manuscript numbers/figures:
 
 ```
-paper_outputs/figures/   # fig01–fig10 (300 DPI PNG + PDF)
-paper_outputs/tables/    # CSV + LaTeX
-paper_outputs/Figure_Index.md
-paper_outputs/Main_Results.md
+paper_outputs/figures/   # 300 DPI PNG + PDF
+paper_outputs/tables/
+reports/final_paper_results.md
+reports/scientific_validation.md
 ```
 
-Exploratory EDA plots stay under `figures/eda/` / `outputs/` and are **not** manuscript figures.
-
-Example:
+Example (core data stack):
 
 ```powershell
 .venv\Scripts\python.exe scripts/02_preprocess.py
 .venv\Scripts\python.exe scripts/03_build_graph.py
-.venv\Scripts\python.exe scripts/06_train_rl.py --max-sensors 20 --timesteps 50000
-.venv\Scripts\python.exe scripts/08_run_baselines.py --split val
-.venv\Scripts\python.exe scripts/09_run_ablations.py --synthetic
-.venv\Scripts\python.exe scripts/11_generate_paper_results.py
-```
-
-Use `--synthetic` on scripts 09–10 when the full dataset is not yet preprocessed.
-
-Generate manuscript pack:
-
-```powershell
-.venv\Scripts\python.exe scripts/12_generate_paper_outputs.py
+.venv\Scripts\python.exe scripts/16_distill_expert_policy.py
+.venv\Scripts\python.exe scripts/19_train_cmappo.py --bc-checkpoint outputs/rl_final/paper_asap/bc/seed_42/final_model.pt
+.venv\Scripts\python.exe scripts/22_scientific_validation.py --figures-only
 ```
 
 ---
@@ -163,19 +156,19 @@ Run tests:
 ```
 configs/           YAML experiment and model settings
 data/              Raw release + processed parquet (generated)
-figures/paper/     Publication figures (generated)
-outputs/           Models, baselines, tables, experiment logs
-reports/           Research report template and findings
-scripts/           Pipeline entry points 01–11
+outputs/           Models, cohorts, graphs, rl_final, recon
+paper_outputs/     Manuscript figures and tables
+reports/           Claim-ready result notes
+scripts/           Pipeline entry points
 src/campus_senserl/
-  data/            Preprocessing, splits, features
+  data/            Preprocessing, splits, features, cohorts
   environment/     Trace-driven Gymnasium env, shield, events
-  evaluation/      Metrics, calibration, statistics
+  evaluation/      Metrics, RL eval, fair reconstruction
   graph/           Sensor graph construction
   models/          Reconstruction and baselines
-  rl/              PPO, MAPPO, rewards, policies
-  visualization/   Paper figures and LaTeX tables
-tests/             Unit tests (synthetic traces, no 800 MB dependency)
+  rl/              PPO, MAPPO, KL-CMAPPO, BC, expert policies
+  visualization/   Figure helpers
+tests/             Unit tests (synthetic traces)
 ```
 
 ---

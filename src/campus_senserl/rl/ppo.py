@@ -55,6 +55,7 @@ class PPOTrainer:
         self.total_timesteps = int(ppo.get("total_timesteps", 200000))
 
     def make_env(self, split: str = "train", max_sensors: int | None = None) -> TraceDrivenCampusEnv:
+        # Always prefer frozen cohort IDs from cfg["environment"]["cohort"].
         return TraceDrivenCampusEnv(
             cfg=self.cfg,
             split=split,

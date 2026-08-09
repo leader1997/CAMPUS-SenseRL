@@ -1,0 +1,81 @@
+# KL-regularized Constrained MAPPO — aim for gap between expert and BC
+seed: 42
+
+environment:
+  reconstructor: locf
+  proposed_backend: locf
+  reconstructor_checkpoint: outputs/models/reconstruction/best_model.pt
+  graph: hybrid
+  graph_fail_fast: true
+  cohort: final
+
+env:
+  name: TraceDrivenCampusEnv
+  target: co2
+  interval_minutes: 15
+  max_aoi: 8
+  max_uncertainty: 2.0
+  action_space: binary
+
+communication:
+  transmit_cost: 1.0
+  skip_cost: 0.0
+  use_estimated_energy: false
+
+reward:
+  w_tx: 1.0
+  w_err: 1.0
+  w_aoi: 0.5
+  w_unc: 0.0
+  w_miss: 1.0
+  w_event: 0.0
+  clip: 20.0
+  normalize_components: false
+
+safety_shield:
+  enabled: false
+  force_transmit_if:
+    aoi_exceeds: 8
+    uncertainty_exceeds: 2.0
+    co2_exceeds: 1200
+    co2_rate_exceeds: 150
+    neighbor_disagreement_exceeds: 200
+
+events:
+  co2_thresholds_ppm: [800, 1000, 1200, 1500]
+  primary_threshold_ppm: 1000
+  rapid_increase_ppm: 150
+  persistent_high_intervals: 3
+
+constraints:
+  eps_miss: 0.015   # recall >= 0.985
+  eps_mae: 9.0
+  eps_aoi: 3.5
+  lr_lambda: 0.08
+  lambda_max: 25.0
+  lambda_min_e: 0.5
+  lambda_min_m: 1.0
+  lambda_min_a: 1.5
+
+kl:
+  beta: 0.08
+  beta_end: 0.025
+  freeze_residual_scale: true
+
+mappo:
+  parameter_sharing: true
+  centralized_critic: true
+  lr: 3.0e-5
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.15
+  ent_coef: 0.01
+  vf_coef: 0.5
+  n_steps: 1024
+  batch_size: 512
+  n_epochs: 3
+  total_timesteps: 60000
+
+training:
+  eval_every_steps: 8000
+  checkpoint_dir: outputs/rl_final/cmappo_kl

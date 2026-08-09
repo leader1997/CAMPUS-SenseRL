@@ -31,19 +31,36 @@ class SharedActor(nn.Module):
         return self.net(x).squeeze(-1)
 
 
-class CentralizedCritic(nn.Module):
-    def __init__(self, global_obs_dim: int, hidden: int = 256) -> None:
+class MeanPoolCritic(nn.Module):
+    """Permutation-invariant centralized critic (variable agent count)."""
+
+    def __init__(self, obs_dim: int, hidden: int = 256) -> None:
         super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(global_obs_dim, hidden),
+        self.phi = nn.Sequential(
+            nn.Linear(obs_dim, hidden),
             nn.Tanh(),
+            nn.Linear(hidden, hidden),
+            nn.Tanh(),
+        )
+        self.v = nn.Sequential(
             nn.Linear(hidden, hidden),
             nn.Tanh(),
             nn.Linear(hidden, 1),
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.net(x).squeeze(-1)
+    def forward(self, obs: torch.Tensor) -> torch.Tensor:
+        # obs: (n_agents, obs_dim) or (B, n_agents, obs_dim)
+        if obs.dim() == 2:
+            h = self.phi(obs)
+            g = h.mean(dim=0, keepdim=True)
+            return self.v(g).squeeze(-1).squeeze(0)
+        h = self.phi(obs)
+        g = h.mean(dim=1)
+        return self.v(g).squeeze(-1)
+
+
+# Backward-compatible alias
+CentralizedCritic = MeanPoolCritic
 
 
 @dataclass
@@ -67,6 +84,7 @@ class MAPPOTrainer:
         self.centralized_critic = bool(mappo.get("centralized_critic", True))
 
     def make_env(self, split: str = "train", max_sensors: int | None = None) -> TraceDrivenCampusEnv:
+        # Reconstructor + graph loaded from cfg["environment"] inside the env.
         return TraceDrivenCampusEnv(
             cfg=self.cfg,
             split=split,
@@ -86,8 +104,7 @@ class MAPPOTrainer:
         obs_dim = env.observation_space.shape[-1]
         n_agents = env.n_sensors
         actor = SharedActor(obs_dim).to(self.device)
-        global_dim = obs_dim * n_agents if self.centralized_critic else obs_dim
-        critic = CentralizedCritic(global_dim).to(self.device)
+        critic = MeanPoolCritic(obs_dim).to(self.device)
         opt = optim.Adam(list(actor.parameters()) + list(critic.parameters()), lr=self.lr)
 
         root = repo_root()
@@ -119,11 +136,7 @@ class MAPPOTrainer:
                 actions = dist.sample()
                 logp = dist.log_prob(actions)
 
-                if self.centralized_critic:
-                    global_obs = obs_t.reshape(-1)
-                    value = critic(global_obs.unsqueeze(0)).squeeze(0)
-                else:
-                    value = critic(obs_t).mean()
+                value = critic(obs_t)
 
                 next_obs, reward, terminated, truncated, _ = env.step(actions.cpu().numpy().astype(int))
                 done = terminated or truncated
@@ -144,10 +157,7 @@ class MAPPOTrainer:
 
             with torch.no_grad():
                 obs_t = torch.as_tensor(obs, dtype=torch.float32, device=self.device)
-                if self.centralized_critic:
-                    last_val = float(critic(obs_t.reshape(-1).unsqueeze(0)).item())
-                else:
-                    last_val = float(critic(obs_t).mean().item())
+                last_val = float(critic(obs_t).item())
 
             adv, ret = compute_gae(np.asarray(rew_buf), np.asarray(val_buf), np.asarray(done_buf), last_val)
             adv = (adv - adv.mean()) / (adv.std() + 1e-8)
@@ -180,15 +190,9 @@ class MAPPOTrainer:
                     pg2 = torch.clamp(ratio, 1 - self.clip_range, 1 + self.clip_range) * agent_adv_t[mb]
                     policy_loss = -torch.min(pg1, pg2).mean()
 
-                    if self.centralized_critic:
-                        mb_steps = mb // n_agents
-                        mb_steps = np.unique(mb_steps)
-                        values = []
-                        for s in mb_steps:
-                            values.append(critic(obs_arr[s].reshape(-1)))
-                        value_loss = ((ret_t[mb_steps] - torch.stack(values)) ** 2).mean()
-                    else:
-                        value_loss = torch.tensor(0.0, device=self.device)
+                    mb_steps = np.unique(mb // n_agents)
+                    values = critic(obs_arr[mb_steps])  # (B,)
+                    value_loss = ((ret_t[mb_steps] - values) ** 2).mean()
 
                     loss = policy_loss + self.vf_coef * value_loss - self.ent_coef * entropy
                     opt.zero_grad()
@@ -201,7 +205,14 @@ class MAPPOTrainer:
             print(f"[mappo] step={global_step} rollout_reward={ep_reward:.3f}")
 
         torch.save(
-            {"actor": actor.state_dict(), "critic": critic.state_dict(), "cfg": self.cfg},
+            {
+                "actor": actor.state_dict(),
+                "critic": critic.state_dict(),
+                "cfg": self.cfg,
+                "critic_type": "mean_pool",
+                "obs_dim": obs_dim,
+                "n_agents_train": n_agents,
+            },
             ckpt_dir / "final_model.pt",
         )
         save_json({"metrics": metrics}, ckpt_dir / "metrics.json")

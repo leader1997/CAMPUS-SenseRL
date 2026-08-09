@@ -16,6 +16,10 @@ from campus_senserl.environment.trace_environment import (
 def minimal_rl_cfg() -> dict:
     return {
         "seed": 42,
+        "environment": {
+            "reconstructor": "locf",
+            "graph": "identity",
+        },
         "env": {"max_aoi": 8},
         "communication": {"transmit_cost": 1.0, "skip_cost": 0.0},
         "reward": {

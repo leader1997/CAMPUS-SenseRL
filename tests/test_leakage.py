@@ -6,10 +6,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from campus_senserl.data.features import add_rolling_features
+from campus_senserl.environment.trace_environment import (
+    TraceDrivenCampusEnv,
+    build_synthetic_trace,
+)
 from campus_senserl.environment.communication_model import SKIP, TRANSMIT
-from campus_senserl.environment.trace_environment import TraceDrivenCampusEnv, build_synthetic_trace
 from campus_senserl.models.graph_reconstruction import apply_mask_scheme
+from campus_senserl.data.features import add_rolling_features
+
 
 
 def test_skipped_ground_truth_not_in_server_values(minimal_rl_cfg, synthetic_trace):
@@ -118,3 +122,36 @@ def test_rolling_delta_no_current_leakage():
     # at i=3: lag1=530, lag2=510 => delta=20; current-lag1=70
     assert np.isclose(out.loc[3, "co2_delta1"], 20.0)
     assert not np.isclose(out.loc[3, "co2_delta1"], 600 - 530)
+
+
+def test_skipped_previous_gt_never_reappears_in_server_history(minimal_rl_cfg):
+    """Sequential no-leakage: a skipped GT must not silently re-enter later server inputs."""
+    trace = build_synthetic_trace(n_steps=10, n_sensors=2, seed=21)
+    # Distinct GT path so leakage would be detectable
+    trace["ground_truth"][:, 0] = np.array(
+        [400.0, 555.0, 600.0, 650.0, 700.0, 750.0, 800.0, 850.0, 900.0, 950.0],
+        dtype=np.float32,
+    )
+    trace["natural_missing"][:] = False
+    trace["local_available"][:] = True
+
+    cfg = dict(minimal_rl_cfg)
+    cfg["safety_shield"] = {"enabled": False}
+    env = TraceDrivenCampusEnv(cfg=cfg, trace=trace, multi_agent=True)
+    env.reset(seed=0)
+
+    # TX at t=0
+    env.step(np.full(2, TRANSMIT, dtype=int))
+    # SKIP at t=1 (GT=555) — must not enter server_values
+    skipped_gt = float(trace["ground_truth"][1, 0])
+    env.step(np.full(2, SKIP, dtype=int))
+    assert not env.server_state.input_mask[0]
+    assert not (
+        np.isfinite(env.server_state.server_values[0])
+        and np.isclose(env.server_state.server_values[0], skipped_gt)
+    )
+    # Later TX at t=2 should set server to current GT=600, still never resurrect 555 as "current input"
+    env.step(np.full(2, TRANSMIT, dtype=int))
+    assert np.isclose(env.server_state.server_values[0], float(trace["ground_truth"][2, 0]))
+    # LOCF last_transmitted should be 400 (t=0) then 600 (t=2), never 555
+    assert not np.isclose(env.server_state.last_transmitted[0], skipped_gt)

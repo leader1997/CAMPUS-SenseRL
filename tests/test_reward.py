@@ -67,6 +67,26 @@ def test_compute_reward_helper():
     assert set(parts.keys()) == {"tx", "err", "aoi", "unc", "miss", "event"}
 
 
+def test_detected_event_gives_positive_event_component():
+    base = _sample_step()
+    base["events"] = np.array([True, False, False, False])
+    base["missed_event_mask"] = np.array([False, False, False, False])
+    base["detected_event_mask"] = np.array([True, False, False, False])
+    rc = RewardComputer(w_event=2.0, normalize_components=False, w_tx=0, w_err=0, w_aoi=0, w_unc=0, w_miss=0)
+    _, parts = rc.compute_step(**base, comm_model=CommunicationCostModel())
+    assert parts["event"] > 0
+
+
+def test_missed_event_gives_negative_miss_component():
+    base = _sample_step()
+    base["events"] = np.array([True, False, False, False])
+    base["missed_event_mask"] = np.array([True, False, False, False])
+    base["detected_event_mask"] = np.array([False, False, False, False])
+    rc = RewardComputer(w_miss=5.0, normalize_components=False, w_tx=0, w_err=0, w_aoi=0, w_unc=0, w_event=0)
+    _, parts = rc.compute_step(**base, comm_model=CommunicationCostModel())
+    assert parts["miss"] < 0
+
+
 def test_transmit_cost_affects_tx_component():
     base = _sample_step()
     base["actions"] = np.full(4, TRANSMIT)

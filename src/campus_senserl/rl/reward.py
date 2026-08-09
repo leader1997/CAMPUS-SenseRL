@@ -46,8 +46,20 @@ class RewardComputer:
         local_available: np.ndarray,
         events: np.ndarray,
         missed_event_mask: np.ndarray,
+        detected_event_mask: np.ndarray | None = None,
         comm_model: CommunicationCostModel | None = None,
     ) -> tuple[float, dict[str, float]]:
+        """Compute scalar reward.
+
+        Scientific semantics
+        --------------------
+        - ``missed_event_mask``: true events missed by **server** detection (FN)
+        - ``detected_event_mask``: true events also detected by server (TP)
+        - ``events``: true-event mask (logging); occurrence is NOT penalized
+
+        Reward:
+        r = -λ_tx C - λ_err E - λ_aoi A - λ_unc U - λ_miss M + λ_event D
+        """
         comm_model = comm_model or CommunicationCostModel()
         actions = np.asarray(actions, dtype=int)
         gt = np.asarray(ground_truth, dtype=float)
@@ -57,6 +69,13 @@ class RewardComputer:
         local_available = np.asarray(local_available, dtype=bool)
         events = np.asarray(events, dtype=bool)
         missed = np.asarray(missed_event_mask, dtype=bool)
+        if detected_event_mask is None:
+            # Backward compatible: treat events & ~missed as detections if provided.
+            detected = events & ~missed
+        else:
+            detected = np.asarray(detected_event_mask, dtype=bool)
+
+        n_avail = max(int(local_available.sum()), 1)
 
         m = local_available & np.isfinite(gt) & np.isfinite(recon)
         if m.any():
@@ -65,11 +84,15 @@ class RewardComputer:
         else:
             err_term = 0.0
 
-        tx_cost = float(np.mean([comm_model.cost(a) for a in actions[local_available]])) if local_available.any() else 0.0
+        tx_cost = (
+            float(np.mean([comm_model.cost(a) for a in actions[local_available]]))
+            if local_available.any()
+            else 0.0
+        )
         aoi_term = float(np.mean(aoi[local_available] / max(aoi.max(), 1.0))) if local_available.any() else 0.0
         unc_term = float(np.mean(unc[local_available] / max(unc.max(), 1.0))) if local_available.any() else 0.0
-        miss_term = float(missed.sum()) / max(local_available.sum(), 1)
-        event_term = float(events[local_available].sum()) / max(local_available.sum(), 1)
+        miss_term = float(missed[local_available].sum()) / n_avail
+        detect_term = float(detected[local_available].sum()) / n_avail
 
         parts = {
             "tx": -self.w_tx * tx_cost,
@@ -77,7 +100,8 @@ class RewardComputer:
             "aoi": -self.w_aoi * aoi_term,
             "unc": -self.w_unc * unc_term,
             "miss": -self.w_miss * miss_term,
-            "event": -self.w_event * event_term,
+            # Positive reward for correctly preserved events (TP)
+            "event": +self.w_event * detect_term,
         }
         total = sum(parts.values())
         if self.normalize_components:
@@ -99,6 +123,7 @@ def compute_reward(
     local_available: np.ndarray,
     events: np.ndarray,
     missed_event_mask: np.ndarray,
+    detected_event_mask: np.ndarray | None = None,
     cfg: dict[str, Any] | None = None,
     comm_model: CommunicationCostModel | None = None,
 ) -> tuple[float, dict[str, float]]:
@@ -112,5 +137,6 @@ def compute_reward(
         local_available=local_available,
         events=events,
         missed_event_mask=missed_event_mask,
+        detected_event_mask=detected_event_mask,
         comm_model=comm_model,
     )

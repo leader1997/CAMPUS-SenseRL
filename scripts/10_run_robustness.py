@@ -1,5 +1,9 @@
 #!/usr/bin/env python
-"""Step 10: Robustness sweeps — packet loss, missingness, event thresholds."""
+"""Step 10: Robustness on REAL validation traces with trained MAPPO.
+
+Packet loss is applied post-shield via env.packet_loss_rate (requested TX vs delivered),
+not by clearing local_available (which would simulate measurement failure).
+"""
 
 from __future__ import annotations
 
@@ -8,105 +12,83 @@ import copy
 import sys
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from campus_senserl.environment.communication_model import TRANSMIT
-from campus_senserl.environment.trace_environment import (
-    TraceDrivenCampusEnv,
-    build_synthetic_trace,
+from campus_senserl.evaluation.rl_policy_eval import (
+    evaluate_policy,
+    load_mappo_policy,
+    make_final_env,
 )
-from campus_senserl.rl.fixed_policies import FixedIntervalPolicy
 from campus_senserl.utils import ensure_dir, load_yaml, repo_root, set_seed
 
 
-def _inject_packet_loss(trace: dict, rate: float, seed: int) -> dict:
-    """Simulate dropped uplinks by marking slots as naturally missing."""
-    out = copy.deepcopy(trace)
-    rng = np.random.default_rng(seed)
-    n_t, n_s = out["ground_truth"].shape
-    drop = rng.random((n_t, n_s)) < rate
-    out["natural_missing"] = out["natural_missing"] | drop
-    out["local_available"] = ~out["natural_missing"] & np.isfinite(out["ground_truth"])
-    return out
-
-
-def _inject_extra_missingness(trace: dict, rate: float, seed: int) -> dict:
-    out = copy.deepcopy(trace)
-    rng = np.random.default_rng(seed + 1)
-    avail = out["local_available"].copy()
-    mask = rng.random(avail.shape) < rate
-    out["local_available"] = avail & ~mask
-    return out
-
-
-def _eval(env: TraceDrivenCampusEnv, max_steps: int) -> dict[str, float]:
-    policy = FixedIntervalPolicy(interval_steps=3)
-    obs, _ = env.reset()
-    policy.reset()
-    total = 0.0
-    steps = 0
-    tx_attempts = 0
-    tx_success = 0
-    while steps < max_steps and env._t < env.n_steps - 1:
-        actions = policy.act(obs, local_available=env.local_available[env._t])
-        tx_attempts += int(np.sum(actions == TRANSMIT))
-        obs, reward, terminated, truncated, info = env.step(actions)
-        tx_success += int(info.get("transmit_count", 0))
-        total += float(reward)
-        steps += 1
-        if terminated or truncated:
-            break
-    m = env.get_episode_metrics()
-    m["mean_reward"] = total / max(steps, 1)
-    m["packet_delivery_ratio"] = tx_success / max(tx_attempts, 1)
-    return m
-
-
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Robustness experiments")
+    parser = argparse.ArgumentParser(description="Robustness experiments (real val + MAPPO)")
     parser.add_argument("--split", default="val")
-    parser.add_argument("--max-sensors", type=int, default=6)
-    parser.add_argument("--max-steps", type=int, default=150)
+    parser.add_argument("--seed", type=int, default=42, help="MAPPO checkpoint seed")
+    parser.add_argument("--max-steps", type=int, default=None, help="None = full split")
+    parser.add_argument("--device", default="cuda")
     args = parser.parse_args()
 
     root = repo_root()
     exp_cfg = load_yaml(root / "configs" / "experiments.yaml")
     rl_cfg = load_yaml(root / "configs" / "rl.yaml")
-    seed = int(exp_cfg.get("seed", 42))
-    set_seed(seed)
+    set_seed(int(exp_cfg.get("seed", 42)))
 
-    base_trace = build_synthetic_trace(n_steps=64, n_sensors=args.max_sensors, seed=seed)
+    ckpt = root / "outputs" / "rl_final" / "mappo" / f"seed_{args.seed}" / "final_model.pt"
+    if not ckpt.exists():
+        raise FileNotFoundError(f"MAPPO checkpoint required: {ckpt}")
+
+    act = load_mappo_policy(ckpt, device=args.device)
     rows = []
 
     for rate in exp_cfg.get("robustness", {}).get("packet_loss_rates", [0.0, 0.1, 0.2]):
-        trace = _inject_packet_loss(base_trace, rate, seed)
-        env = TraceDrivenCampusEnv(cfg=rl_cfg, trace=trace, multi_agent=True)
-        m = _eval(env, args.max_steps)
-        rows.append({"condition": "packet_loss", "level": rate, **m})
+        print(f"[robust] packet_loss={rate}")
+        env = make_final_env(
+            split=args.split,
+            cfg=rl_cfg,
+            multi_agent=True,
+            shield_enabled=True,
+            packet_loss_rate=float(rate),
+        )
+        m = evaluate_policy(env, act, max_steps=args.max_steps, seed=args.seed)
+        rows.append({"condition": "packet_loss", "level": rate, "policy": "mappo", **m})
 
-    for rate in exp_cfg.get("robustness", {}).get("missingness_rates", [0.1, 0.2, 0.4]):
-        trace = _inject_extra_missingness(base_trace, rate, seed)
-        env = TraceDrivenCampusEnv(cfg=rl_cfg, trace=trace, multi_agent=True)
-        m = _eval(env, args.max_steps)
-        rows.append({"condition": "missingness", "level": rate, **m})
-
-    for thr in exp_cfg.get("robustness", {}).get("event_thresholds_ppm", [800, 1000, 1200]):
+    for thr in exp_cfg.get("robustness", {}).get("event_thresholds_ppm", [800, 1000, 1200, 1500]):
+        print(f"[robust] event_threshold={thr}")
         cfg = copy.deepcopy(rl_cfg)
         cfg.setdefault("events", {})["primary_threshold_ppm"] = thr
-        env = TraceDrivenCampusEnv(cfg=cfg, trace=base_trace, multi_agent=True)
-        m = _eval(env, args.max_steps)
-        rows.append({"condition": "event_threshold", "level": thr, **m})
+        env = make_final_env(
+            split=args.split,
+            cfg=cfg,
+            multi_agent=True,
+            shield_enabled=True,
+            packet_loss_rate=0.0,
+        )
+        m = evaluate_policy(env, act, max_steps=args.max_steps, seed=args.seed)
+        rows.append({"condition": "event_threshold", "level": thr, "policy": "mappo", **m})
 
     df = pd.DataFrame(rows)
-    out_dir = ensure_dir(root / "outputs" / "robustness")
-    out_csv = out_dir / "robustness.csv"
+    out_dir = ensure_dir(root / "outputs" / "robustness_final")
+    out_csv = out_dir / "robustness_mappo_val.csv"
     df.to_csv(out_csv, index=False)
+    # Also refresh live outputs/robustness with a clear filename
+    legacy = ensure_dir(root / "outputs" / "robustness")
+    df.to_csv(legacy / "robustness_real_val_mappo.csv", index=False)
     print(f"[done] wrote {out_csv}")
-    print(df[["condition", "level", "mean_reward", "transmit_rate", "packet_delivery_ratio"]].to_string(index=False))
+    cols = [
+        "condition",
+        "level",
+        "transmission_reduction_pct",
+        "event_recall",
+        "n_true_events",
+        "packet_delivery_ratio",
+        "mae_skipped",
+    ]
+    print(df[[c for c in cols if c in df.columns]].to_string(index=False))
 
 
 if __name__ == "__main__":

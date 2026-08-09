@@ -1,0 +1,12 @@
+{
+  "frozen_seed": 123,
+  "checkpoint": "C:\\Users\\MossabBatal\\Desktop\\OULU_RL\\outputs\\rl_final\\paper_asap\\bc\\seed_123\\final_model.pt",
+  "expert": {
+    "delta_ppm": 35.0,
+    "aoi_threshold": 3.5,
+    "co2_ppm": 1000.0,
+    "disagreement_ppm": 20.0
+  },
+  "split": "test",
+  "note": "Method selected on val only; single frozen test pass."
+}

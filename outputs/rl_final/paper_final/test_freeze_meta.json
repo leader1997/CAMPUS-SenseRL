@@ -1,0 +1,5 @@
+{
+  "frozen_cmappo_seed": 123,
+  "cmappo_checkpoint": "C:\\Users\\MossabBatal\\Desktop\\OULU_RL\\outputs\\rl_final\\cmappo_kl\\seed_123\\best_model.pt",
+  "note": "Method/hyperparams frozen on VAL; this is the single test report."
+}
