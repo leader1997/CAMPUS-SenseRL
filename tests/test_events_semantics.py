@@ -35,7 +35,6 @@ def test_skipped_but_reconstructed_event_is_tp_not_fn(minimal_rl_cfg):
     trace["local_available"][:] = True
 
     cfg = dict(minimal_rl_cfg)
-    cfg["safety_shield"] = {"enabled": False}
     cfg["events"] = {
         "primary_threshold_ppm": 1000,
         "rapid_increase_ppm": 150,
@@ -71,7 +70,6 @@ def test_skipped_and_missed_reconstruction_is_fn(minimal_rl_cfg):
     trace["local_available"][:] = True
 
     cfg = dict(minimal_rl_cfg)
-    cfg["safety_shield"] = {"enabled": False}
     cfg["events"] = {
         "primary_threshold_ppm": 1000,
         "rapid_increase_ppm": 150,

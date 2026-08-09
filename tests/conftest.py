@@ -32,16 +32,6 @@ def minimal_rl_cfg() -> dict:
             "clip": 10.0,
             "normalize_components": True,
         },
-        "safety_shield": {
-            "enabled": True,
-            "force_transmit_if": {
-                "aoi_exceeds": 8,
-                "uncertainty_exceeds": 2.0,
-                "co2_exceeds": 1200,
-                "co2_rate_exceeds": 150,
-                "neighbor_disagreement_exceeds": 200,
-            },
-        },
         "events": {
             "co2_thresholds_ppm": [800, 1000, 1200, 1500],
             "primary_threshold_ppm": 1000,

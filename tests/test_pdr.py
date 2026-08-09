@@ -1,4 +1,4 @@
-"""PDR must always lie in [0, 1] and use post-shield requests."""
+"""PDR must always lie in [0, 1] and use policy TX requests."""
 
 from __future__ import annotations
 

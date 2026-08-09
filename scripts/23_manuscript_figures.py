@@ -412,7 +412,7 @@ def fig06() -> None:
     cfg = load_yaml(ROOT / "configs" / "rl_cmappo.yaml")
     ckpt = ROOT / "outputs" / "rl_final" / "cmappo_kl" / "seed_123" / "best_model.pt"
     act = load_mappo_policy(ckpt, device="cpu", prob_threshold=0.5)
-    env = make_final_env(split="val", cfg=cfg, multi_agent=True, shield_enabled=False)
+    env = make_final_env(split="val", cfg=cfg, multi_agent=True)
     obs, _ = env.reset(seed=123)
 
     # Pick sensor with interesting mid-val dynamics

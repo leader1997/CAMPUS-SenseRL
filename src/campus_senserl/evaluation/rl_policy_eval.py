@@ -31,7 +31,6 @@ def make_final_env(
     split: str = "val",
     cfg: dict[str, Any] | None = None,
     multi_agent: bool = True,
-    shield_enabled: bool | None = None,
     packet_loss_rate: float = 0.0,
     sensor_ids: list[str] | None = None,
     sensor_outage_fraction: float = 0.0,
@@ -61,8 +60,6 @@ def make_final_env(
     env_cfg["edge_drop_fraction"] = float(edge_drop_fraction)
     env_cfg["stress_seed"] = int(stress_seed)
     cfg["environment"] = env_cfg
-    if shield_enabled is not None:
-        cfg.setdefault("safety_shield", {})["enabled"] = bool(shield_enabled)
 
     ids = sensor_ids if sensor_ids is not None else load_cohort(str(env_cfg["cohort"]))
     env = TraceDrivenCampusEnv(
@@ -163,7 +160,6 @@ def evaluate_policy(
     tp_rapid = fn_rapid = n_rapid = 0
     aoi_state_all: list[float] = []
     aoi_raw_all: list[float] = []
-    shield_overrides = 0
     tx = 0
     avail_n = 0
     tx_requested = 0
@@ -226,8 +222,7 @@ def evaluate_policy(
                 tp_rapid += int((np.asarray(info["tp_rapid_rise"], dtype=bool) & local).sum())
                 fn_rapid += int((np.asarray(info["fn_rapid_rise"], dtype=bool) & local).sum())
 
-        shield_overrides += int(info.get("shield_overrides", 0))
-        tx_requested += int(info.get("tx_requested_after_shield", 0))
+        tx_requested += int(info.get("tx_requested", info.get("tx_requested_after_shield", 0)))
         tx_delivered += int(info.get("transmit_count", 0))
         if "aoi_raw" in info:
             aoi_raw_all.extend(np.asarray(info["aoi_raw"], dtype=float).tolist())
@@ -283,7 +278,6 @@ def evaluate_policy(
         "p90_aoi": float(np.percentile(aoi_report, 90)) if aoi_report else float("nan"),
         "p95_aoi": float(np.percentile(aoi_report, 95)) if aoi_report else float("nan"),
         "max_aoi": float(np.max(aoi_report)) if aoi_report else float("nan"),
-        "shield_overrides": shield_overrides,
         "mean_reward_per_step": reward_sum / max(steps, 1),
         "packet_delivery_ratio": packet_delivery_ratio(tx_requested, tx_delivered),
         "tx_requested": tx_requested,

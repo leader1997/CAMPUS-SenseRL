@@ -12,7 +12,6 @@ from campus_senserl.environment.trace_environment import TraceDrivenCampusEnv, b
 def test_changing_reconstructor_changes_predictions(minimal_rl_cfg):
     trace = build_synthetic_trace(n_steps=10, n_sensors=3, seed=3)
     cfg = dict(minimal_rl_cfg)
-    cfg["safety_shield"] = {"enabled": False}
 
     env_a = TraceDrivenCampusEnv(
         cfg=cfg,

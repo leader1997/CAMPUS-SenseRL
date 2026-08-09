@@ -11,7 +11,6 @@ from campus_senserl.environment.trace_environment import TraceDrivenCampusEnv, b
 def test_aoi_increments_on_skip(minimal_rl_cfg):
     trace = build_synthetic_trace(n_steps=10, n_sensors=2, seed=3)
     cfg = dict(minimal_rl_cfg)
-    cfg["safety_shield"] = {"enabled": False}
     env = TraceDrivenCampusEnv(cfg=cfg, trace=trace, multi_agent=True)
     env.reset(seed=0)
 
@@ -29,7 +28,6 @@ def test_aoi_increments_on_skip(minimal_rl_cfg):
 def test_aoi_resets_on_transmit(minimal_rl_cfg):
     trace = build_synthetic_trace(n_steps=10, n_sensors=2, seed=4)
     cfg = dict(minimal_rl_cfg)
-    cfg["safety_shield"] = {"enabled": False}
     env = TraceDrivenCampusEnv(cfg=cfg, trace=trace, multi_agent=True)
     env.reset(seed=0)
 
@@ -51,7 +49,6 @@ def test_aoi_capped_at_max(minimal_rl_cfg):
     trace = build_synthetic_trace(n_steps=20, n_sensors=1, seed=5)
     cfg = dict(minimal_rl_cfg)
     cfg["env"] = {"max_aoi": 5}
-    cfg["safety_shield"] = {"enabled": False}
     env = TraceDrivenCampusEnv(cfg=cfg, trace=trace, multi_agent=True)
     env.reset(seed=0)
 

@@ -40,14 +40,6 @@ reward:
   clip: 10.0
   normalize_components: true
 
-safety_shield:
-  enabled: true
-  force_transmit_if:
-    aoi_exceeds: 8
-    uncertainty_exceeds: 2.0
-    co2_exceeds: 1200
-    co2_rate_exceeds: 150  # ppm per interval
-    neighbor_disagreement_exceeds: 200  # ppm
 
 events:
   # PRIMARY paper threshold (monitoring/event thresholds — not medical limits)

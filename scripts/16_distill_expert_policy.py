@@ -40,7 +40,6 @@ def main() -> None:
     root = repo_root()
     cfg = load_yaml(root / "configs" / "rl_learn.yaml")
     cfg["seed"] = args.seed
-    cfg.setdefault("safety_shield", {})["enabled"] = False
     set_seed(args.seed)
     device = args.device if args.device != "auto" else ("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -100,7 +99,7 @@ def main() -> None:
 
     # Full val eval (no shield)
     act = load_mappo_policy(path, device=device)
-    val_env = make_final_env(split="val", cfg=cfg, multi_agent=True, shield_enabled=False)
+    val_env = make_final_env(split="val", cfg=cfg, multi_agent=True)
     m = evaluate_policy(val_env, act, max_steps=None, seed=args.seed)
     m["method"] = "mappo_boosted_bc"
     m["seed"] = args.seed
@@ -128,7 +127,7 @@ def main() -> None:
     ]
     for name, pol in baselines:
         print(f"[distill] baseline {name}...")
-        env_b = make_final_env(split="val", cfg=cfg, multi_agent=True, shield_enabled=False)
+        env_b = make_final_env(split="val", cfg=cfg, multi_agent=True)
 
         def _act(obs, *, local_available=None, _p=pol):
             return _p.act(obs, local_available=local_available)

@@ -87,7 +87,7 @@ def run_matched_budget(root: Path, device: str, out: Path) -> pd.DataFrame:
             for tau in thresholds:
                 print(f"  {method} seed={seed} tau={tau:.3f}")
                 act = load_mappo_policy(ckpt, device=device, prob_threshold=float(tau))
-                env = make_final_env(split="val", cfg=cfg, multi_agent=True, shield_enabled=False)
+                env = make_final_env(split="val", cfg=cfg, multi_agent=True)
                 m = evaluate_policy(env, act, max_steps=None, seed=seed)
                 rows.append(
                     {
@@ -196,7 +196,7 @@ def run_robustness(root: Path, device: str, out: Path) -> pd.DataFrame:
     for cond_name, level, kwargs in conditions:
         print(f"  condition={cond_name} level={level}")
         # expert
-        env = make_final_env(split="val", cfg=cfg, multi_agent=True, shield_enabled=False, **kwargs)
+        env = make_final_env(split="val", cfg=cfg, multi_agent=True, **kwargs)
         m = evaluate_policy(env, _wrap(SemanticExpertPolicy()), max_steps=None, seed=42)
         rows.append({"method": "semantic_expert", "seed": 42, "condition": cond_name, "level": level, **m})
 
@@ -207,7 +207,7 @@ def run_robustness(root: Path, device: str, out: Path) -> pd.DataFrame:
                     continue
                 act = load_mappo_policy(ckpt, device=device)
                 env = make_final_env(
-                    split="val", cfg=cfg, multi_agent=True, shield_enabled=False, **kwargs
+                    split="val", cfg=cfg, multi_agent=True, **kwargs
                 )
                 m = evaluate_policy(env, act, max_steps=None, seed=seed)
                 rows.append(
@@ -290,20 +290,9 @@ def run_ablations(root: Path, device: str, out: Path, timesteps: int, force: boo
 
     # BC only
     act = load_mappo_policy(bc, device=device)
-    env = make_final_env(split="val", cfg=base, multi_agent=True, shield_enabled=False)
+    env = make_final_env(split="val", cfg=base, multi_agent=True)
     m = evaluate_policy(env, act, max_steps=None, seed=42)
     rows.append({"ablation": "bc_only", "seed": 42, **m})
-
-    # Old shield MAPPO negative baseline (if present)
-    old = root / "outputs" / "rl_final" / "mappo" / "seed_42" / "final_model.pt"
-    if old.exists():
-        act = load_mappo_policy(old, device=device)
-        env = make_final_env(split="val", cfg=base, multi_agent=True, shield_enabled=True)
-        m = evaluate_policy(env, act, max_steps=None, seed=42)
-        rows.append({"ablation": "old_mappo_shield", "seed": 42, "shield": True, **m})
-        env = make_final_env(split="val", cfg=base, multi_agent=True, shield_enabled=False)
-        m = evaluate_policy(env, act, max_steps=None, seed=42)
-        rows.append({"ablation": "old_mappo_no_shield", "seed": 42, "shield": False, **m})
 
     for variant in variants[1:]:
         ckpt_dir = abl_dir / variant / "seed_42"
@@ -327,7 +316,7 @@ def run_ablations(root: Path, device: str, out: Path, timesteps: int, force: boo
             best = Path(out_train["best"])
 
         act = load_mappo_policy(best, device=device)
-        env = make_final_env(split="val", cfg=base, multi_agent=True, shield_enabled=False)
+        env = make_final_env(split="val", cfg=base, multi_agent=True)
         m = evaluate_policy(env, act, max_steps=None, seed=42)
         rows.append({"ablation": variant, "seed": 42, "checkpoint": str(best), **m})
         print(
@@ -354,7 +343,7 @@ def run_heldout(root: Path, device: str, out: Path) -> pd.DataFrame:
     rows = []
     # Expert on held-out (reference)
     env = make_final_env(
-        split="val", cfg=cfg, multi_agent=True, shield_enabled=False, sensor_ids=ids
+        split="val", cfg=cfg, multi_agent=True, sensor_ids=ids
     )
     m = evaluate_policy(env, _wrap(SemanticExpertPolicy()), max_steps=None, seed=42)
     rows.append({"method": "semantic_expert", "seed": 42, "cohort": "heldout", "split": "val", **m})
@@ -367,7 +356,7 @@ def run_heldout(root: Path, device: str, out: Path) -> pd.DataFrame:
             act = load_mappo_policy(ckpt, device=device)
             for split in ["val", "test"]:
                 env = make_final_env(
-                    split=split, cfg=cfg, multi_agent=True, shield_enabled=False, sensor_ids=ids
+                    split=split, cfg=cfg, multi_agent=True, sensor_ids=ids
                 )
                 m = evaluate_policy(env, act, max_steps=None, seed=seed)
                 rows.append(
@@ -555,8 +544,6 @@ def regenerate_figures(root: Path, sci: Path) -> None:
             "kl_only",
             "constraints_only",
             "full_kl_cmappo",
-            "old_mappo_shield",
-            "old_mappo_no_shield",
         ]
         abl["ord"] = abl["ablation"].apply(lambda x: order.index(x) if x in order else 99)
         abl = abl.sort_values("ord")
@@ -566,8 +553,6 @@ def regenerate_figures(root: Path, sci: Path) -> None:
             "kl_only": "BC+KL",
             "constraints_only": "BC+Constraints",
             "full_kl_cmappo": "KL-CMAPPO",
-            "old_mappo_shield": "Old MAPPO+shield",
-            "old_mappo_no_shield": "Old MAPPO (no shield)",
         }
         fig, axes = plt.subplots(1, 2, figsize=(9.5, 4.0))
         x = np.arange(len(abl))

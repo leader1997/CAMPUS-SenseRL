@@ -41,7 +41,6 @@ def test_single_agent_flat_obs(minimal_rl_cfg, synthetic_trace):
 def test_natural_missing_vs_rl_skipped(minimal_rl_cfg):
     trace = build_synthetic_trace(n_steps=12, n_sensors=3, seed=11)
     cfg = dict(minimal_rl_cfg)
-    cfg["safety_shield"] = {"enabled": False}
     env = TraceDrivenCampusEnv(cfg=cfg, trace=trace, multi_agent=True)
     env.reset(seed=0)
 
@@ -61,7 +60,6 @@ def test_natural_missing_vs_rl_skipped(minimal_rl_cfg):
 def test_transmit_clears_rl_skipped_flag(minimal_rl_cfg):
     trace = build_synthetic_trace(n_steps=10, n_sensors=2, seed=12)
     cfg = dict(minimal_rl_cfg)
-    cfg["safety_shield"] = {"enabled": False}
     env = TraceDrivenCampusEnv(cfg=cfg, trace=trace, multi_agent=True)
     env.reset(seed=0)
 

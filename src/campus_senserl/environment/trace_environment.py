@@ -12,7 +12,6 @@ from gymnasium import spaces
 
 from campus_senserl.environment.communication_model import SKIP, TRANSMIT, CommunicationCostModel
 from campus_senserl.environment.event_detector import EventDetector
-from campus_senserl.environment.safety_shield import SafetyShield
 from campus_senserl.rl.reward import RewardComputer
 from campus_senserl.utils import load_yaml, repo_root
 
@@ -315,7 +314,6 @@ class TraceDrivenCampusEnv(gym.Env):
         self.comm = CommunicationCostModel.from_config(cfg)
         self.reward_computer = RewardComputer.from_config(cfg)
         self.event_detector = EventDetector.from_config(cfg)
-        self.shield = SafetyShield.from_config(cfg)
         self.max_aoi = float(cfg.get("env", {}).get("max_aoi", 8))
 
         env_cfg = cfg.get("environment", {})
@@ -562,28 +560,10 @@ class TraceDrivenCampusEnv(gym.Env):
 
         gt = self.ground_truth[t]
         local_avail = self._effective_local_available(t)
-        local_co2 = np.where(local_avail, gt, np.nan)
-        prev_recon, prev_unc = self._reconstruct()
-
-        co2_rate = np.zeros(self.n_sensors, dtype=np.float32)
         prev_gt = self.ground_truth[t - 1] if t > 0 else np.full(self.n_sensors, np.nan, dtype=np.float32)
-        if t > 0:
-            co2_rate = np.where(
-                local_avail & np.isfinite(prev_gt),
-                gt - prev_gt,
-                0.0,
-            )
 
-        neighbor_dis = self._neighbor_disagreement(local_co2, prev_recon)
-        final_actions, shield_decisions = self.shield.apply_vector(
-            actions,
-            aoi=self.server_state.aoi,
-            uncertainty=prev_unc,
-            local_co2=local_co2,
-            co2_rate=co2_rate,
-            neighbor_disagreement=neighbor_dis,
-            local_available=local_avail,
-        )
+        # Policy actions are applied directly (no safety-shield override).
+        final_actions = np.asarray(actions, dtype=int).reshape(-1)
 
         # Age link info every step; refresh only on successful TX
         self.link_aoi = np.minimum(self.link_aoi + 1.0, self.max_aoi)
@@ -681,9 +661,8 @@ class TraceDrivenCampusEnv(gym.Env):
             "timestep": self._t,
             "reward_parts": reward_parts,
             "transmit_count": tx_count,
-            "tx_requested_after_shield": tx_requested,
+            "tx_requested": tx_requested,
             "tx_dropped": tx_dropped,
-            "shield_overrides": sum(d.overridden for d in shield_decisions),
             "reconstruction": post_recon,
             "uncertainty": post_unc,
             "server_monitor": server_y.copy(),

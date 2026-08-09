@@ -46,7 +46,6 @@ DISPLAY = {
     "delta_plus_heartbeat": "Delta + heartbeat",
     "semantic_expert": "Semantic expert",
     "campus_senserl_bc": "BC policy",
-    "mappo_old_shield": "Old MAPPO + shield",
     "cmappo_kl": "KL-CMAPPO",
 }
 COLORS = {
@@ -56,7 +55,6 @@ COLORS = {
     "Delta + heartbeat": "#41AB5D",
     "Semantic expert": "#006D2C",
     "BC policy": "#6A51A3",
-    "Old MAPPO + shield": "#969696",
     "KL-CMAPPO": "#CB181D",
 }
 
@@ -70,9 +68,7 @@ def save(fig: plt.Figure, stem: str, sub: Path | None = None) -> None:
     d = sub or OUT
     ensure_dir(d)
     png = d / f"{stem}.png"
-    pdf = d / f"{stem}.pdf"
     fig.savefig(png, dpi=DPI, facecolor="white", bbox_inches="tight")
-    fig.savefig(pdf, facecolor="white", bbox_inches="tight")
     plt.close(fig)
     log(f"WROTE {png.relative_to(ROOT)}")
 
@@ -276,7 +272,7 @@ def _rollout_actions(env, policy_act, start: int, length: int, seed: int = 42):
 def fig02() -> None:
     apply_paper_style()
     cfg = load_yaml(ROOT / "configs" / "rl_cmappo.yaml")
-    env = make_final_env(split="val", cfg=cfg, multi_agent=True, shield_enabled=False)
+    env = make_final_env(split="val", cfg=cfg, multi_agent=True)
     start, sid = _select_window(env, length=192)
     sensor_id = env.sensor_ids[sid]
     length = 192
@@ -287,12 +283,12 @@ def fig02() -> None:
     def fixed_act(obs, *, local_available=None):
         return fixed.act(obs, local_available=local_available)
 
-    env_f = make_final_env(split="val", cfg=cfg, multi_agent=True, shield_enabled=False)
+    env_f = make_final_env(split="val", cfg=cfg, multi_agent=True)
     h_fix = _rollout_actions(env_f, fixed_act, start, length, seed=42)
 
     ckpt = CMAPPO / "seed_123" / "best_model.pt"
     act = load_mappo_policy(ckpt, device="cpu", prob_threshold=0.5)
-    env_k = make_final_env(split="val", cfg=cfg, multi_agent=True, shield_enabled=False)
+    env_k = make_final_env(split="val", cfg=cfg, multi_agent=True)
     h_kl = _rollout_actions(env_k, act, start, length, seed=42)
 
     hours = np.arange(length) * 0.25
@@ -323,7 +319,7 @@ def fig02() -> None:
     ax.axhline(1000, color="#CB181D", ls="--", lw=0.9, alpha=0.7)
     ax.set_ylabel("CO$_2$ (ppm)")
     ax.set_xlabel("Time (hours from window start)")
-    ax.set_title(f"(b) KL-CMAPPO (seed 123, shield OFF)  —  TX = {n_kl}  ·  reduction vs Fixed-15 = {red:.1f}%")
+    ax.set_title(f"(b) KL-CMAPPO (seed 123)  —  TX = {n_kl}  ·  reduction vs Fixed-15 = {red:.1f}%")
     ax.legend(frameon=False, fontsize=7.5, ncol=3, loc="upper right")
     fig.suptitle(f"Validation · sensor {sensor_id[-6:]} · start step {start}", fontsize=10, y=1.01)
     fig.tight_layout()
@@ -396,9 +392,9 @@ def fig03() -> None:
     ax.text(0.25, 5.55, "CAMPUS-SenseRL / KL-CMAPPO workflow", fontsize=12, fontweight="bold")
     ax.text(0.25, 5.15, "Centralized training · decentralized execution", fontsize=9, color="#555")
     ax.text(7.1, 4.55, r"$\pi_{BC}$  ←── KL regularization ($\beta$) ──→  $\pi_{RL}$", fontsize=9, color="#CB181D")
-    ax.text(7.1, 5.05, "Final KL-CMAPPO evaluation: shield-free", fontsize=9, fontweight="bold", color="#CB181D")
+    ax.text(7.1, 5.05, "Final method: KL-CMAPPO", fontsize=9, fontweight="bold", color="#CB181D")
     save(fig, "fig03_method_workflow")
-    log("FIG03 schematic (no numerical CSV); shield OFF stated explicitly")
+    log("FIG03 schematic (no numerical CSV); KL-CMAPPO method schematic")
 
 
 # ---------------------------------------------------------------------------
@@ -555,7 +551,7 @@ def fig06() -> None:
     ax.set_title("Constraint feasibility across seeds")
     panel_label(ax, "(d)")
 
-    fig.suptitle("KL-CMAPPO training dynamics (5 seeds · validation checkpoints · shield OFF)", fontsize=10)
+    fig.suptitle("KL-CMAPPO training dynamics (5 seeds · validation checkpoints)", fontsize=10)
     fig.tight_layout()
     save(fig, "fig06_rl_training_dynamics")
 
@@ -611,7 +607,6 @@ def fig08() -> None:
         ("bc_only", "BC only", COLORS["BC policy"], "o"),
         ("kl_only", "KL only", "#31A354", "^"),
         ("mappo_no_kl_no_constraints", "MAPPO w/o KL/constraints", "#6BAED6", "v"),
-        ("old_mappo_shield", "Old MAPPO + shield", COLORS["Old MAPPO + shield"], "P"),
     ]
     fig, ax = plt.subplots(figsize=(7.8, 5.2))
     for key, label, color, marker in specs:
@@ -633,8 +628,7 @@ def fig08() -> None:
             linewidths=0.7,
             label=f"{label} (rec={rec:.1f}%)",
         )
-        # Sparse numeric tags only for isolated / key points
-        if key in {"constraints_only", "full_kl_cmappo", "old_mappo_shield"}:
+        if key in {"constraints_only", "full_kl_cmappo"}:
             ax.annotate(
                 f"{x:.1f}%, {y:.2f} ppm",
                 (x, y),
@@ -645,21 +639,12 @@ def fig08() -> None:
             )
         log(f"FIG08 {key}: TX↓={x:.2f} MAE={y:.2f} rec={r['event_recall']:.4f} seed={r['seed']}")
 
-    cat = abl[abl["ablation"] == "old_mappo_no_shield"]
-    note = ""
-    if not cat.empty:
-        note = (
-            f"Old MAPPO without shield omitted from axes "
-            f"(MAE≈{cat.iloc[0]['mae_skipped']:.0f} ppm; degenerate)."
-        )
     ax.set_xlabel("Transmission reduction (%) →")
     ax.set_ylabel("Skipped-slot CO$_2$ MAE (ppm)")
     ax.set_title("KL / constraint ablation (mechanistic · seed 42 · validation)")
     ax.grid(True, alpha=0.25)
     ax.legend(loc="upper left", fontsize=7.5, frameon=True, framealpha=0.95)
     ax.text(0.98, 0.02, "Better → right and down", transform=ax.transAxes, ha="right", va="bottom", fontsize=8, color="#666")
-    if note:
-        ax.text(0.0, -0.16, note, transform=ax.transAxes, fontsize=7.5, color="#666")
     fig.tight_layout()
     save(fig, "fig08_kl_constraint_ablation")
 
@@ -671,7 +656,7 @@ def fig09() -> None:
     apply_paper_style()
     cfg = load_yaml(ROOT / "configs" / "rl_cmappo.yaml")
     length = 96  # 24 hours
-    env0 = make_final_env(split="val", cfg=cfg, multi_agent=True, shield_enabled=False)
+    env0 = make_final_env(split="val", cfg=cfg, multi_agent=True)
     start, _ = _select_window(env0, length=length)
     # use a fixed start near selected window but aligned
     start = (start // 96) * 96
@@ -681,10 +666,10 @@ def fig09() -> None:
     def fixed_act(obs, *, local_available=None):
         return fixed.act(obs, local_available=local_available)
 
-    env_f = make_final_env(split="val", cfg=cfg, multi_agent=True, shield_enabled=False)
+    env_f = make_final_env(split="val", cfg=cfg, multi_agent=True)
     h_fix = _rollout_actions(env_f, fixed_act, start, length, seed=42)
     act = load_mappo_policy(CMAPPO / "seed_123" / "best_model.pt", device="cpu")
-    env_k = make_final_env(split="val", cfg=cfg, multi_agent=True, shield_enabled=False)
+    env_k = make_final_env(split="val", cfg=cfg, multi_agent=True)
     h_kl = _rollout_actions(env_k, act, start, length, seed=42)
 
     def encode(h):
@@ -709,7 +694,7 @@ def fig09() -> None:
     fig, axes = plt.subplots(2, 1, figsize=(10.5, 6.2), sharex=True, gridspec_kw={"height_ratios": [1, 1], "hspace": 0.18})
     for ax, A, title in [
         (axes[0], A_fix, "(a) Fixed 15 min"),
-        (axes[1], A_kl, "(b) KL-CMAPPO (shield OFF)"),
+        (axes[1], A_kl, "(b) KL-CMAPPO"),
     ]:
         data = np.ma.array(A, mask=np.isnan(A))
         im = ax.imshow(data, aspect="auto", interpolation="nearest", cmap=cmap, vmin=0, vmax=1, origin="lower")
@@ -820,7 +805,7 @@ def fig12() -> None:
         ("Fixed 60 min", lambda: FixedIntervalPolicy(4)),
         ("KL-CMAPPO", None),
     ]:
-        env = make_final_env(split="val", cfg=cfg, multi_agent=True, shield_enabled=False)
+        env = make_final_env(split="val", cfg=cfg, multi_agent=True)
         if name == "KL-CMAPPO":
             act = load_mappo_policy(CMAPPO / "seed_123" / "best_model.pt", device="cpu")
         else:
@@ -934,7 +919,7 @@ All figures use frozen artifacts only (no retraining). Method names are manuscri
 | --- | --- | --- | --- | --- | --- |
 | `fig01_campus_deployment` | 1 | Real distributed campus evaluation? | `devices.json`, `final_cohort.json`, `heldout_cohort.json` | sensor counts / coordinates | Developed on 40 sensors; transferred to 40 held-out sensors. |
 | `fig02_fixed_vs_adaptive_timeline` | 2 | How does adaptive TX differ from Fixed-15 on real CO₂? | frozen KL-CMAPPO seed 123 rollout + FixedInterval(1), val | interval TX counts, CO₂, recon | KL-CMAPPO suppresses stable uplinks and transmits during change. |
-| `fig03_method_workflow` | 3 | What is the method? | schematic | — | Expert→BC→KL-CMAPPO (shield-free) with constraints + KL anchor. |
+| `fig03_method_workflow` | 3 | What is the method? | schematic | — | Expert→BC→KL-CMAPPO (KL-CMAPPO) with constraints + KL anchor. |
 | `fig04_overall_results` | 4 | How do policies compare? | `paper_final/full_val_summary.csv` | TX↓, MAE (±std) | KL-CMAPPO ~78% TX↓ with much lower MAE than Fixed-60. |
 | `fig05_matched_budget` | 5 | Is RL gain only from sending more? | `matched_budget_summary.csv` | MAE, recall at 75/78/80% | KL-CMAPPO still improves BC at matched budgets. |
 | `fig06_rl_training_dynamics` | 6 | Do constraints become feasible during training? | `cmappo_kl/seed_*/metrics.json` val rows | val MAE/recall/TX↓, #feasible seeds | Constraints are reached across seeds while keeping large TX savings. |
@@ -952,8 +937,8 @@ All figures use frozen artifacts only (no retraining). Method names are manuscri
 
 ## Draft captions (short)
 1. University of Oulu campus IoT deployment with RL development and held-out transfer cohorts.
-2. Same real CO₂ window under Fixed 15 min vs shield-free KL-CMAPPO (validation).
-3. CAMPUS-SenseRL workflow: semantic expert, BC initialization, KL-CMAPPO fine-tuning (shield-free).
+2. Same real CO₂ window under Fixed 15 min vs KL-CMAPPO KL-CMAPPO (validation).
+3. CAMPUS-SenseRL workflow: semantic expert, BC initialization, KL-CMAPPO fine-tuning (KL-CMAPPO).
 4. Validation transmission reduction and skipped-slot MAE across policies (mean±std).
 5. Matched-budget comparison of BC and KL-CMAPPO at 75/78/80% TX reduction (validation, 5 seeds).
 6. Five-seed KL-CMAPPO validation dynamics and constraint feasibility during training.
@@ -999,7 +984,7 @@ No training was performed. All numerical figures read frozen CSVs/JSONs under `o
 
 ## fig03_method_workflow — MAIN
 1. What is the method?
-2. Expert→BC→KL-CMAPPO; shield-free; KL as regularization.
+2. Expert→BC→KL-CMAPPO; KL-CMAPPO; KL as regularization.
 3. Schematic only.
 4. Main.
 5. Not an empirical result plot.
@@ -1037,7 +1022,7 @@ No training was performed. All numerical figures read frozen CSVs/JSONs under `o
 2. Constraints-only: best MAE, lower TX↓; full KL-CMAPPO balances.
 3. `ablation_kl_cmappo_val.csv` (**seed 42 only**).
 4. Main (label as mechanistic single-seed).
-5. Not multi-seed significance; catastrophic no-shield MAPPO off-axis.
+5. Not multi-seed significance; Old MAPPO baselines removed.
 
 ## fig09_transmission_heatmap — MAIN
 1. Is communication sensor-/time-specific?

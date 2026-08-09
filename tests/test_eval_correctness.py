@@ -17,7 +17,6 @@ def test_fixed_interval_1_has_zero_reduction(minimal_rl_cfg):
     cfg = dict(minimal_rl_cfg)
     cfg.setdefault("environment", {})["graph"] = "identity"
     cfg.setdefault("environment", {})["graph_fail_fast"] = False
-    cfg.setdefault("safety_shield", {})["enabled"] = False
     env = TraceDrivenCampusEnv(cfg=cfg, trace=trace, multi_agent=True)
     pol = FixedIntervalPolicy(interval_steps=1)
 
@@ -52,12 +51,11 @@ def test_packet_loss_keeps_local_available(minimal_rl_cfg):
     cfg = dict(minimal_rl_cfg)
     cfg.setdefault("environment", {})["packet_loss_rate"] = 1.0
     cfg.setdefault("environment", {})["graph"] = "identity"
-    cfg.setdefault("safety_shield", {})["enabled"] = False
     env = TraceDrivenCampusEnv(cfg=cfg, trace=trace, multi_agent=True)
     obs, _ = env.reset()
     actions = np.full(env.n_sensors, TRANSMIT, dtype=int)
     obs, r, term, trunc, info = env.step(actions)
-    assert info["tx_requested_after_shield"] == env.n_sensors
+    assert info["tx_requested"] == env.n_sensors
     assert info["transmit_count"] == 0
     assert info["tx_dropped"] == env.n_sensors
     # Local availability for that step remains True in info

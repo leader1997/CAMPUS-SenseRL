@@ -19,7 +19,6 @@ from campus_senserl.data.features import add_rolling_features
 def test_skipped_ground_truth_not_in_server_values(minimal_rl_cfg, synthetic_trace):
     trace = build_synthetic_trace(n_steps=12, n_sensors=3, seed=7)
     cfg = dict(minimal_rl_cfg)
-    cfg["safety_shield"] = {"enabled": False}
     env = TraceDrivenCampusEnv(cfg=cfg, trace=trace, multi_agent=True)
     env.reset(seed=0)
 
@@ -47,7 +46,6 @@ def test_skipped_ground_truth_not_in_server_values(minimal_rl_cfg, synthetic_tra
 def test_transmit_updates_server_with_current_gt(minimal_rl_cfg):
     trace = build_synthetic_trace(n_steps=8, n_sensors=2, seed=1)
     cfg = dict(minimal_rl_cfg)
-    cfg["safety_shield"] = {"enabled": False}
     env = TraceDrivenCampusEnv(cfg=cfg, trace=trace, multi_agent=True)
     env.reset(seed=0)
 
@@ -136,7 +134,6 @@ def test_skipped_previous_gt_never_reappears_in_server_history(minimal_rl_cfg):
     trace["local_available"][:] = True
 
     cfg = dict(minimal_rl_cfg)
-    cfg["safety_shield"] = {"enabled": False}
     env = TraceDrivenCampusEnv(cfg=cfg, trace=trace, multi_agent=True)
     env.reset(seed=0)
 

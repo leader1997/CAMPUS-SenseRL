@@ -24,7 +24,6 @@ ablations:
   - no_uncertainty
   - no_aoi
   - no_semantic
-  - no_safety_shield
   - independent_vs_marl
   - spatial_vs_correlation_vs_hybrid
   - fixed_vs_heuristic_vs_rl

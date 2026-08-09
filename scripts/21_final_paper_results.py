@@ -74,12 +74,11 @@ def train_seed(seed: int, timesteps: int, device: str, force: bool) -> Path:
     return Path(out["best"])
 
 
-def eval_named(name: str, act, *, split: str, cfg: dict, seed: int, shield: bool = False) -> dict:
-    env = make_final_env(split=split, cfg=cfg, multi_agent=True, shield_enabled=shield)
+def eval_named(name: str, act, *, split: str, cfg: dict, seed: int) -> dict:
+    env = make_final_env(split=split, cfg=cfg, multi_agent=True)
     m = evaluate_policy(env, act, max_steps=None, seed=seed)
     m["method"] = name
     m["seed"] = seed
-    m["shield"] = shield
     m["split"] = split
     return m
 
@@ -221,7 +220,6 @@ def main() -> None:
 
     root = repo_root()
     cfg = load_yaml(root / "configs" / "rl_cmappo.yaml")
-    cfg.setdefault("safety_shield", {})["enabled"] = False
     out = ensure_dir(root / "outputs" / "rl_final" / "paper_final")
     paper_fig = ensure_dir(root / "paper_outputs" / "figures")
     paper_tab = ensure_dir(root / "paper_outputs" / "tables")
@@ -263,12 +261,6 @@ def main() -> None:
     for seed, ckpt in ckpts.items():
         act = load_mappo_policy(ckpt, device=args.device)
         rows.append(eval_named("cmappo_kl", act, split="val", cfg=cfg, seed=seed))
-
-    # old mappo shield reference (seed 42)
-    old = root / "outputs" / "rl_final" / "mappo" / "seed_42" / "final_model.pt"
-    if old.exists():
-        act = load_mappo_policy(old, device=args.device)
-        rows.append(eval_named("mappo_old_shield", act, split="val", cfg=cfg, seed=42, shield=True))
 
     df_val = pd.DataFrame(rows)
     df_val.to_csv(out / "full_val_raw.csv", index=False)

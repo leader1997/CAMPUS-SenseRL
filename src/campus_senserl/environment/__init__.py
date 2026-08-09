@@ -7,7 +7,6 @@ from campus_senserl.environment.communication_model import (
     action_cost,
 )
 from campus_senserl.environment.event_detector import EventDetector
-from campus_senserl.environment.safety_shield import SafetyShield, ShieldDecision
 
 __all__ = [
     "SKIP",
@@ -15,8 +14,6 @@ __all__ = [
     "CommunicationCostModel",
     "action_cost",
     "EventDetector",
-    "SafetyShield",
-    "ShieldDecision",
     "TraceDrivenCampusEnv",
     "load_trace_tensors",
 ]

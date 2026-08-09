@@ -1,6 +1,6 @@
 """Packet delivery ratio helpers.
 
-Requested transmissions are counted AFTER the safety shield.
+Requested transmissions are policy TRANSMIT decisions (attempted uplinks).
 Delivered transmissions are those that succeed after simulated packet loss.
 """
 
@@ -18,7 +18,7 @@ def packet_delivery_ratio(
     Parameters
     ----------
     n_requested:
-        Final TRANSMIT actions after the safety shield (attempted uplinks).
+        Policy TRANSMIT decisions (attempted uplinks).
     n_delivered:
         Successfully delivered TRANSMIT outcomes after packet-loss simulation.
     """
@@ -29,7 +29,7 @@ def packet_delivery_ratio(
     if deliv > req + 1e-9:
         raise ValueError(
             f"n_delivered ({deliv}) cannot exceed n_requested ({req}); "
-            "count requested TX after the shield, delivered after loss."
+            "count requested TX from the policy, delivered after loss."
         )
     if req <= 0:
         return 0.0
@@ -38,6 +38,6 @@ def packet_delivery_ratio(
 
 
 def count_requested_transmits(final_actions: np.ndarray, transmit_code: int = 1) -> int:
-    """Count post-shield TRANSMIT decisions."""
+    """Count policy TRANSMIT decisions."""
     a = np.asarray(final_actions)
     return int(np.sum(a == transmit_code))

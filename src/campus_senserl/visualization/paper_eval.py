@@ -169,12 +169,8 @@ def collect_policy_results(
     """Evaluate fixed, random (matched), and heuristic policies on real traces."""
     root = repo_root()
     cfg = load_yaml(root / "configs" / "rl.yaml")
-    cfg_no_shield = dict(cfg)
-    cfg_no_shield["safety_shield"] = {**cfg.get("safety_shield", {}), "enabled": False}
-    cfg_shield = dict(cfg)
-    cfg_shield["safety_shield"] = {**cfg.get("safety_shield", {}), "enabled": True}
 
-    env = TraceDrivenCampusEnv(cfg=cfg_no_shield, split=split, max_sensors=max_sensors, multi_agent=True)
+    env = TraceDrivenCampusEnv(cfg=cfg, split=split, max_sensors=max_sensors, multi_agent=True)
     results: dict[str, dict[str, Any]] = {}
 
     policies: dict[str, Any] = {}
@@ -186,7 +182,6 @@ def collect_policy_results(
         results[name] = evaluate_policy(env, pol, max_steps=max_steps, event_threshold=event_threshold)
         results[name]["display_name"] = _display_name(name)
         results[name]["family"] = _family(name)
-        results[name]["safety_shield"] = False
 
     for fixed_name in ["fixed_30min", "fixed_45min", "fixed_60min"]:
         if fixed_name not in results:
@@ -198,20 +193,16 @@ def collect_policy_results(
         results[rname] = evaluate_policy(env, rpol, max_steps=max_steps, event_threshold=event_threshold)
         results[rname]["display_name"] = f"Random (matched {fixed_name.replace('fixed_', '')})"
         results[rname]["family"] = "random"
-        results[rname]["safety_shield"] = False
 
-    env_s = TraceDrivenCampusEnv(cfg=cfg_shield, split=split, max_sensors=max_sensors, multi_agent=True)
-    print("[paper-eval] proposed_proxy (info-value + safety shield)...")
+    print("[paper-eval] semantic_expert_proxy (info-value heuristic)...")
     prop = InfoValuePolicy(threshold=0.35)
     results["proposed_proxy"] = evaluate_policy(
-        env_s, prop, max_steps=max_steps, event_threshold=event_threshold
+        env, prop, max_steps=max_steps, event_threshold=event_threshold
     )
-    results["proposed_proxy"]["display_name"] = "Semantic + safety shield (proxy)"
+    results["proposed_proxy"]["display_name"] = "Info-value heuristic (proxy)"
     results["proposed_proxy"]["family"] = "proposed"
-    results["proposed_proxy"]["safety_shield"] = True
     results["proposed_proxy"]["note"] = (
-        "Proxy for proposed method: semantic info-value heuristic with safety shield. "
-        "Full trained MAPPO multi-seed evaluation is not yet available."
+        "Heuristic proxy only. Final method is KL-CMAPPO (see paper_final results)."
     )
 
     out = ensure_dir(root / "paper_outputs" / "tables")
@@ -264,7 +255,6 @@ def collect_adaptive_timeline(
     """Record true CO2, TX/SKIP, reconstruction, uncertainty for one sensor."""
     root = repo_root()
     cfg = load_yaml(root / "configs" / "rl.yaml")
-    cfg["safety_shield"] = {**cfg.get("safety_shield", {}), "enabled": True}
     env = TraceDrivenCampusEnv(cfg=cfg, split=split, max_sensors=max_sensors, multi_agent=True)
     policy = InfoValuePolicy(threshold=0.35)
     obs, _ = env.reset()
@@ -305,7 +295,7 @@ def collect_adaptive_timeline(
         "actions": actions_hist,
         "sensor_index": sensor_index,
         "event_threshold": float(cfg.get("events", {}).get("primary_threshold_ppm", 1000)),
-        "policy": "info_value + safety_shield",
+        "policy": "info_value",
         "split": split,
         "start_offset_steps": start,
     }

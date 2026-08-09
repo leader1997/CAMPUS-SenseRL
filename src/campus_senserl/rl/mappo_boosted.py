@@ -170,7 +170,6 @@ class BoostedMAPPOTrainer:
         env_cfg.setdefault("graph", "hybrid")
         cfg["environment"] = env_cfg
         # Critical: train WITHOUT shield so the policy owns TX decisions
-        cfg.setdefault("safety_shield", {})["enabled"] = False
         sensors = load_cohort(str(env_cfg["cohort"]))
         return TraceDrivenCampusEnv(
             cfg=cfg,
@@ -393,7 +392,6 @@ class BoostedMAPPOTrainer:
                         split="val",
                         cfg=self.cfg,
                         multi_agent=True,
-                        shield_enabled=False,
                     )
                     act_fn = load_mappo_policy(ckpt_dir / "final_model.pt", device=self.device)
                     # Monkey-patch loader can't know ResidualSharedActor — evaluate inline

@@ -1,8 +1,0 @@
-{
-  "checkpoint": "C:\\Users\\MossabBatal\\Desktop\\OULU_RL\\outputs\\rl_final\\cmappo_kl\\seed_123\\best_model.pt",
-  "sensor_id": "A81758FFFE030D4E",
-  "sensor_index": 5,
-  "start_step": 1800,
-  "length": 160,
-  "shield": false
-}

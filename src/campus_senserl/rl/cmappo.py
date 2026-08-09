@@ -101,7 +101,6 @@ class ConstrainedMAPPOTrainer:
         env_cfg.setdefault("cohort", "final")
         env_cfg.setdefault("graph", "hybrid")
         cfg["environment"] = env_cfg
-        cfg.setdefault("safety_shield", {})["enabled"] = False
         sensors = load_cohort(str(env_cfg["cohort"]))
         return TraceDrivenCampusEnv(cfg=cfg, split=split, sensor_ids=sensors, multi_agent=True)
 
@@ -340,7 +339,7 @@ class ConstrainedMAPPOTrainer:
 
                 try:
                     val_env = make_final_env(
-                        split="val", cfg=self.cfg, multi_agent=True, shield_enabled=False
+                        split="val", cfg=self.cfg, multi_agent=True
                     )
                     vm = evaluate_policy(val_env, _act, max_steps=None, seed=int(self.cfg.get("seed", 42)))
                     aoi = float(vm.get("mean_aoi_raw", vm["mean_aoi"]))

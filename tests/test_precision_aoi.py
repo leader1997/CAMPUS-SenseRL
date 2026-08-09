@@ -19,7 +19,6 @@ def test_false_positives_exposed_and_counted(minimal_rl_cfg):
     trace["local_available"][:] = True
 
     cfg = dict(minimal_rl_cfg)
-    cfg["safety_shield"] = {"enabled": False}
     cfg["events"] = {
         "primary_threshold_ppm": 1000,
         "rapid_increase_ppm": 150,
@@ -49,7 +48,6 @@ def test_aoi_raw_exceeds_clip(minimal_rl_cfg):
     trace["natural_missing"][:] = False
     trace["local_available"][:] = True
     cfg = dict(minimal_rl_cfg)
-    cfg["safety_shield"] = {"enabled": False}
     cfg.setdefault("env", {})["max_aoi"] = 8
     env = TraceDrivenCampusEnv(cfg=cfg, trace=trace, multi_agent=True)
     env.reset()

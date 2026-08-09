@@ -51,7 +51,6 @@ def main() -> None:
             split=args.split,
             cfg=rl_cfg,
             multi_agent=True,
-            shield_enabled=True,
             packet_loss_rate=float(rate),
         )
         m = evaluate_policy(env, act, max_steps=args.max_steps, seed=args.seed)
@@ -65,7 +64,6 @@ def main() -> None:
             split=args.split,
             cfg=cfg,
             multi_agent=True,
-            shield_enabled=True,
             packet_loss_rate=0.0,
         )
         m = evaluate_policy(env, act, max_steps=args.max_steps, seed=args.seed)

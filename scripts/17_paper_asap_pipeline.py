@@ -58,7 +58,7 @@ def _score(m: dict) -> float:
 
 
 def eval_policy_named(name: str, act, *, split: str, cfg: dict, max_steps: int | None, seed: int) -> dict:
-    env = make_final_env(split=split, cfg=cfg, multi_agent=True, shield_enabled=False)
+    env = make_final_env(split=split, cfg=cfg, multi_agent=True)
     m = evaluate_policy(env, act, max_steps=max_steps, seed=seed)
     m["method"] = name
     m["seed"] = seed
@@ -116,7 +116,6 @@ def distill_seed(
     set_seed(seed)
     cfg = copy.deepcopy(cfg)
     cfg["seed"] = seed
-    cfg.setdefault("safety_shield", {})["enabled"] = False
     sensors = load_cohort("final")
     env = TraceDrivenCampusEnv(cfg=cfg, split="train", sensor_ids=sensors, multi_agent=True)
     obs_dim = int(env.observation_space.shape[-1])
@@ -223,7 +222,6 @@ def main() -> None:
 
     root = repo_root()
     cfg = load_yaml(root / "configs" / "rl_learn.yaml")
-    cfg.setdefault("safety_shield", {})["enabled"] = False
     device = args.device if torch.cuda.is_available() or args.device == "cpu" else "cpu"
     out = ensure_dir(root / "outputs" / "rl_final" / "paper_asap")
     paper_tables = ensure_dir(root / "paper_outputs" / "tables")
