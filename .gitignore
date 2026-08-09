@@ -11,11 +11,10 @@ Thumbs.db
 
 # Local scratch / superseded experiment dumps (do not reintroduce)
 outputs/legacy_provisional/
-paper_outputs/legacy_provisional/
 outputs/experiments/
 outputs/ablations_final/
 outputs/robustness/
-figures/
+/figures/
 
 # Keep directory placeholders
 !data/raw/README.md

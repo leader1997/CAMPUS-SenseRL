@@ -1,0 +1,10 @@
+{
+  "dpi": 300,
+  "sources": [
+    "paper_final",
+    "scientific_validation",
+    "heldout_cohort"
+  ],
+  "shield": false,
+  "no_training": true
+}

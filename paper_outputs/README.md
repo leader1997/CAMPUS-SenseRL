@@ -1,25 +1,29 @@
-# Paper outputs — FINAL
+# Paper outputs — FINAL manuscript pack
 
-Ready for manuscript drafting. See also `reports/final_paper_results.md` and `reports/scientific_validation.md`.
+Regenerate with (no training):
 
-## Tables
-- `tables/table3_policy_comparison.csv` / `table3_policy_summary.csv` — main val comparison
-- `tables/table3_policy_comparison_test.csv` / `table3_policy_summary_test.csv` — frozen test
-- `tables/table4_ablation.csv` — KL-CMAPPO component ablation
-- `tables/table5_robustness.csv` — packet loss / outages (includes KL-CMAPPO)
-- `tables/table_matched_budget.csv` — matched TX-budget Pareto
-- `tables/table_heldout_transfer.csv` — unseen-sensor transfer
+```powershell
+.venv\Scripts\python.exe scripts/23_manuscript_figures.py
+```
 
-## Figures (300 DPI PNG + PDF)
-- `fig05_*` matched-budget reconstruction Pareto
-- `fig06_*` event recall vs TX
-- `fig08_*` raw AoI
-- `fig09_*` algorithmic ablation
-- `fig10_*` robustness
+## Main figures (only these belong in the manuscript)
 
-## Canonical checkpoints (under `outputs/`)
-- `rl_final/cmappo_kl/seed_*/best_model.pt` — frozen 5-seed KL-CMAPPO
-- `rl_final/paper_asap/bc/seed_*/` — BC baselines
-- `rl_final/cmappo_ablations/` — ablation variants
-- `rl_final/scientific_validation/` — post-freeze proof CSVs
-- `rl_final/mappo/seed_42/` — old shield MAPPO (negative baseline only)
+| Fig | File | Content |
+| --- | --- | --- |
+| 1 | `fig01_sensor_network` | Deployment + RL / held-out cohorts |
+| 2 | `fig02_co2_example` | Why adaptive communication |
+| 3 | `fig03_framework` | Expert → BC → KL-CMAPPO (shield OFF) |
+| 4 | `fig04_policy_pareto` | Overall TX↓ vs MAE Pareto |
+| 5 | `fig05_matched_budget` | BC vs KL-CMAPPO at matched budgets |
+| 6 | `fig06_kl_cmappo_timeline` | Real KL-CMAPPO TX/SKIP behaviour |
+| 7 | `fig07_heldout_transfer` | Unseen-sensor generalization |
+| 8 | `fig08_ablation_pareto` | KL / constraint ablation |
+| 9 | `fig09_robustness` | Packet-loss MAE + recall |
+
+## Docs
+- `Figure_Index.md` — captions / scientific messages
+- `Main_Results.md` — claim-ready tables
+- `reports/scientific_validation.md` — validation proofs
+
+## Legacy
+Obsolete plots live in `legacy_provisional/figures/` (do not use in the paper).

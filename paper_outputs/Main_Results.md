@@ -1,56 +1,46 @@
-# Main Results — CAMPUS-SenseRL
+# Main Results — CAMPUS-SenseRL (claim-ready)
 
-Only results considered sufficiently rigorous for manuscript reporting are emphasised below. Weak or preliminary runs are explicitly labelled.
+Sources: `outputs/rl_final/paper_final/`, `outputs/rl_final/scientific_validation/`.
+Algorithm wording: **KL-regularized constrained multi-agent policy optimization with validation-enforced feasibility** (shield OFF).
 
-## Rigorous enough to report
+## Dataset / cohorts
+- University of Oulu Smart Campus LoRaWAN CO₂ traces.
+- **RL development:** frozen 40-sensor cohort (`final_cohort.json`).
+- **Transfer:** 40 held-out eligible sensors never used to train/tune RL (`heldout_cohort.json`).
 
-### Dataset
+## Validation policy comparison (mean ± std)
 
-- Real University of Oulu Smart Campus LoRaWAN traces (2020-07-01 to 2021-05-31).
-- Primary CO₂ subset: **299** ERS CO₂ sensors; 15-minute nominal cadence; chronological 60/20/20 split.
+| Method | TX↓ % | MAE | Recall | Precision | AoI raw |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Fixed 30 | 50.0 | 9.66 | 0.931 | 0.903 | 0.60 |
+| Fixed 60 | 75.3 | 11.34 | 0.887 | 0.856 | 1.89 |
+| Delta+heartbeat | 79.6 | 10.60 | 0.966 | 0.902 | 1.99 |
+| Semantic expert | 73.9 | **7.22** | **0.999** | 0.988 | **1.75** |
+| BC (5 seeds) | 80.0±0.13 | 9.19±0.03 | 0.993±0.001 | 0.975±0.002 | 2.16±0.02 |
+| **KL-CMAPPO (5 seeds)** | **77.8±0.78** | **8.66±0.16** | **0.995±0.002** | **0.987±0.006** | **1.94±0.09** |
+| Old MAPPO+shield | 78.9 | 13.08 | 0.935 | 0.844 | 3.35 |
 
-### Reconstruction (validation, 40% random causal mask)
+**Claim (not domination):** KL-CMAPPO trades ~2.2 pp extra communication vs BC for better MAE, recall, precision, and AoI.
 
-| Model | MAE | RMSE | R² | Event recall |
-|---|---:|---:|---:|---:|
-| Last observation (LOCF) | 12.97 | 64.79 | 0.792 | 0.87 |
-| Linear extrapolation | 23.36 | 131.82 | 0.14 | 0.863 |
-| KNN neighbours | 76.37 | 151.21 | -0.131 | 0.0 |
-| ExtraTrees | 10.93 | 51.73 | 0.875 | 0.889 |
-| LightGBM | 11.56 | 53.51 | 0.866 | 0.848 |
-| Masked ST-GNN | 16.84 | 58.33 | --- | --- |
+## Matched communication budgets (VAL, 5 seeds)
 
-**Finding:** Among causal reconstructors evaluated, **ExtraTrees** achieves the lowest MAE (10.93 ppm) on the validation masked-reconstruction task.
+| Target TX↓ | BC MAE | KL-CMAPPO MAE |
+| ---: | ---: | ---: |
+| 75% | 7.94±0.02 | **7.90±0.03** |
+| 78% | 8.87±0.01 | **8.72±0.07** |
+| 80% | 9.20±0.02 | **9.13±0.04** |
 
-### Communication scheduling (validation subset evaluation)
+## Frozen temporal test (KL-CMAPPO seed 123)
+TX↓ 77.5%, MAE 8.37, recall 0.961, precision 0.925 (improves BC; Fixed-60 recall collapses).
 
-Policies evaluated on the trace-driven environment with LOCF server reconstruction. Metrics are computed from actual rollouts (not invented).
+## Held-out sensors (test, 5 seeds)
+| Method | TX↓ % | MAE | Recall |
+| --- | ---: | ---: | ---: |
+| BC | 79.95±0.10 | 8.93±0.05 | 0.996 |
+| KL-CMAPPO | 77.77±0.70 | **8.43±0.12** | **0.997** |
 
-| Method | Tx reduction (%) | MAE on skips | Event recall | Mean AoI |
-|---|---:|---:|---:|---:|
-| Fixed 15 min | 0.0 | 0.00 | 100.0% | 0.01 |
-| Fixed 30 min | 50.2 | 10.66 | 55.0% | 0.72 |
-| Random (matched 30min) | 50.9 | 11.95 | 55.0% | 1.00 |
-| Change threshold | 58.7 | 10.58 | 100.0% | 1.42 |
-| Fixed 45 min | 66.6 | 12.14 | 30.0% | 1.41 |
-| Random (matched 45min) | 67.1 | 13.85 | 30.0% | 1.90 |
-| Fixed 60 min | 75.3 | 13.51 | 30.0% | 2.17 |
-| Random (matched 60min) | 75.9 | 14.87 | 32.5% | 2.76 |
-| Semantic + safety shield (proxy) | 84.7 | 12.50 | 65.0% | 3.31 |
-| Info-value heuristic | 99.7 | 32.54 | 47.5% | 7.88 |
-| Uncertainty heuristic | 100.0 | 71.95 | 5.0% | 8.00 |
-| AoI threshold | 100.0 | 71.95 | 5.0% | 8.00 |
-| CO2 threshold | 100.0 | 71.95 | 5.0% | 8.00 |
+## Ablation (seed 42)
+Constraints alone → best MAE but lower TX↓ (~70.5%). KL alone ≈ BC. Full KL-CMAPPO balances quality and budget (~78.7%, MAE 8.87). Old MAPPO without shield collapses (MAE≈74).
 
-## Not yet rigorous enough for strong claims
-
-- Figure 10 / Table 5 robustness results are synthetic smoke tests (small environment) and are not yet campus-panel multi-seed results.
-- Figure 11 omitted: current PPO/MAPPO logs are short smoke runs (<3 meaningful checkpoints, single seed) and do not meet the manuscript criterion for smoothed multi-seed convergence plots.
-- Trained PPO/MAPPO are not yet plotted on Figures 5–6 because matched-budget multi-seed evaluation with event recall/MAE has not been completed; a semantic+shield heuristic proxy is shown instead and labelled as such.
-- Do not claim measured battery-life gains; communication cost is a transmission proxy.
-
-## Hypotheses status (honest)
-
-- **H1 (adaptive reduces TX while keeping accuracy):** Partially supported by fixed vs heuristic trade-offs on the evaluated subset; full multi-seed MARL confirmation pending.
-- **H2 (semantic scheduling preserves events better at matched budgets):** Requires matched-budget comparison including trained MARL; proxy semantic+shield is reported but not definitive.
-- **H3–H5:** Not confirmed yet — trained multi-seed PPO/MAPPO Pareto evaluation incomplete.
+## Reconstruction note
+Causal reconstructors were benchmarked; **LOCF** is used online in the RL environment for causal sequential suitability. Detailed recon numbers belong in the appendix — not the main contribution.
