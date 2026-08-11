@@ -1,0 +1,11 @@
+{
+  "split": "val",
+  "sensor_id": "A81758FFFE030F69",
+  "sensor_index": 39,
+  "start_step": 3472,
+  "length": 192,
+  "fixed15_tx": 192,
+  "kl_cmappo_tx": 55,
+  "reduction_vs_fixed15_pct": 71.35416666666667,
+  "checkpoint": "C:\\Users\\MossabBatal\\Desktop\\OULU_RL\\outputs\\rl_final\\cmappo_kl\\seed_123\\best_model.pt"
+}

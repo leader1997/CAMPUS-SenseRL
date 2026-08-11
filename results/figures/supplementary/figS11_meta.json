@@ -1,0 +1,6 @@
+{
+  "start": 3552,
+  "length": 96,
+  "checkpoint": "C:\\Users\\MossabBatal\\Desktop\\OULU_RL\\outputs\\rl_final\\cmappo_kl\\seed_123\\best_model.pt",
+  "split": "val"
+}

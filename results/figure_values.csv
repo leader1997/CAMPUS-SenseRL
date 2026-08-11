@@ -1,0 +1,81 @@
+figure,method,metric,value,extra
+fig01,all,n_co2_capable,299,
+fig01,rl_dev,n_sensors,40,
+fig01,heldout,n_sensors,40,
+fig02,Fixed 15,interval_tx,192,sensor=A81758FFFE030F69
+fig02,KL-CMAPPO,interval_tx,55,
+fig02,KL-CMAPPO,reduction_vs_fixed15_pct,71.35,
+fig04,Fixed 60,mae_ppm,11.3353,tx_reduction=75.268; n=1; validation
+fig04,Delta + heartbeat,mae_ppm,10.5971,tx_reduction=79.606; n=1; validation
+fig04,KL-CMAPPO,mae_ppm,8.7424,tx_reduction=77.790; n=5; validation
+fig05,KL-CMAPPO,val_mae_mean,9.0964,step=8192
+fig05,KL-CMAPPO,val_mae_mean,9.0603,step=16384
+fig05,KL-CMAPPO,val_mae_mean,9.0746,step=24576
+fig05,KL-CMAPPO,val_mae_mean,9.0304,step=32768
+fig05,KL-CMAPPO,val_mae_mean,8.9968,step=40960
+fig05,KL-CMAPPO,val_mae_mean,8.9425,step=48128
+fig05,KL-CMAPPO,val_mae_mean,8.7639,step=56320
+fig05,KL-CMAPPO,val_mae_mean,8.8145,step=60000
+fig06,BC initialization,mae_ppm,9.1656,tx↓=79.561; seed=42
+fig06,Init + MAPPO (no KL/constr.),mae_ppm,9.564,tx↓=81.245; seed=42
+fig06,Init + KL only,mae_ppm,9.3556,tx↓=80.626; seed=42
+fig06,Init + constraints,mae_ppm,7.5947,tx↓=73.228; seed=42
+fig06,Full KL-CMAPPO,mae_ppm,8.9228,tx↓=78.647; seed=42
+fig07,Semantic expert,mae_ppm,7.2453,heldout val
+fig07,KL-CMAPPO,mae_ppm,8.4951,heldout test; std=0.1163
+fig08,KL-CMAPPO,mae_loss_0,8.7424,std=0.1237; validation
+fig08,KL-CMAPPO,mae_loss_10,9.0014,std=0.1183; validation
+fig08,KL-CMAPPO,mae_loss_20,9.254,std=0.1142; validation
+fig08,KL-CMAPPO,mae_loss_40,9.9884,std=0.1174; validation
+fig09,Fixed 15,cum_tx_end,24424,start=3552; length=672; val
+fig09,Fixed 60,cum_tx_end,6021,
+fig09,KL-CMAPPO,cum_tx_end,5606,
+figS01,BC initialization,mae_at_75,7.967,validation matched budget
+figS01,BC initialization,mae_at_78,8.9233,validation matched budget
+figS01,BC initialization,mae_at_80,9.2549,validation matched budget
+figS01,KL-CMAPPO,mae_at_75,7.9356,validation matched budget
+figS01,KL-CMAPPO,mae_at_78,8.7867,validation matched budget
+figS01,KL-CMAPPO,mae_at_80,9.1743,validation matched budget
+figS01b,BC initialization,recall_at_75,99.7573,
+figS01b,BC initialization,recall_at_78,99.3207,
+figS01b,BC initialization,recall_at_80,99.2711,
+figS01b,KL-CMAPPO,recall_at_75,99.794,
+figS01b,KL-CMAPPO,recall_at_78,99.3876,
+figS01b,KL-CMAPPO,recall_at_80,99.3061,
+figS04,KL-CMAPPO,n_feasible,1,step=8192
+figS04,KL-CMAPPO,n_feasible,3,step=16384
+figS04,KL-CMAPPO,n_feasible,1,step=24576
+figS04,KL-CMAPPO,n_feasible,3,step=32768
+figS04,KL-CMAPPO,n_feasible,4,step=40960
+figS04,KL-CMAPPO,n_feasible,4,step=48128
+figS04,KL-CMAPPO,n_feasible,5,step=56320
+figS04,KL-CMAPPO,n_feasible,5,step=60000
+figS05,KL-CMAPPO,beta_start,0.08,
+figS05,KL-CMAPPO,beta_end,0.0256,
+figS06,λ_event,final_mean,0.937,
+figS06,λ_MAE,final_mean,1.8818,
+figS06,λ_AoI,final_mean,1.5,
+figS07,BC only,mae,9.1656,tx↓=79.561; seed=42
+figS07,No KL/constraints,mae,9.564,tx↓=81.245; seed=42
+figS07,KL only,mae,9.3556,tx↓=80.626; seed=42
+figS07,Constraints only,mae,7.5947,tx↓=73.228; seed=42
+figS07,Full KL-CMAPPO,mae,8.9228,tx↓=78.647; seed=42
+figS08,Fixed 30,mae,9.66,validation
+figS08,Fixed 60,mae,11.3353,validation
+figS08,Delta + heartbeat,mae,10.5971,validation
+figS08,Semantic expert,mae,7.2189,validation
+figS08,BC initialization,mae,9.2047,validation
+figS08,KL-CMAPPO,mae,8.7424,validation
+figS09,Semantic expert,mae_loss_0,7.2189,
+figS09,Semantic expert,mae_loss_10,7.6055,
+figS09,Semantic expert,mae_loss_20,8.0588,
+figS09,Semantic expert,mae_loss_40,9.0458,
+figS09,BC initialization,mae_loss_0,9.2047,
+figS09,BC initialization,mae_loss_10,9.4347,
+figS09,BC initialization,mae_loss_20,9.679,
+figS09,BC initialization,mae_loss_40,10.32,
+figS09,KL-CMAPPO,mae_loss_0,8.7424,
+figS09,KL-CMAPPO,mae_loss_10,9.0014,
+figS09,KL-CMAPPO,mae_loss_20,9.254,
+figS09,KL-CMAPPO,mae_loss_40,9.9884,
+figS11,KL-CMAPPO,heatmap_start,3552,length=96
