@@ -6,7 +6,7 @@
 
 Algorithm wording: **KL-regularized constrained multi-agent policy optimization with validation-enforced feasibility**, initialized from expert-guided behavior cloning.
 
-Sources: `results/csv_json/` (copied from `outputs/rl_final/`).
+Sources: `results/csv_json/` (copied from `results/rl_final/`).
 
 ## Dataset / cohorts
 - University of Oulu Smart Campus LoRaWAN CO₂ traces.
@@ -49,4 +49,6 @@ Constraints protect information quality; KL helps retain communication-efficient
 KL-CMAPPO: TX↓ **77.83±0.63%**, MAE **8.50±0.12**, recall **0.996**.
 
 ## Figures
-`results/figures/` — regenerate with `scripts/26_paper_figures_simple.py`.
+15 manuscript figures in `results/figures/` (PNG, 600 dpi) — regenerate with
+`python scripts/28_manuscript_figures.py` (inference only, no training).
+Plotted values are logged to `results/figures/figure_values.csv`.

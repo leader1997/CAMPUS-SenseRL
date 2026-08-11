@@ -25,7 +25,7 @@ The pipeline **runs end-to-end**, but the scientific experiment is **not paper-r
 
 ## 2. Current checkpoints (provisional)
 
-Archived to `outputs/legacy_provisional/` (not deleted).
+Archived to `results/legacy_provisional/` (not deleted).
 
 ### PPO (`legacy_provisional/ppo_60k/`)
 
@@ -50,7 +50,7 @@ Archived to `outputs/legacy_provisional/` (not deleted).
 | Reconstructor / graph | LOCF + identity |
 | Status | **Preliminary — not final**; critic not campus-scale |
 
-### Reconstruction (`outputs/models/reconstruction/`)
+### Reconstruction (`results/models/reconstruction/`)
 
 | Field | Value |
 |-------|-------|
@@ -73,7 +73,7 @@ Archived to `outputs/legacy_provisional/` (not deleted).
 - `reconstruction_baselines/baselines_val_mask0.4.json`: ExtraTrees 10.93, LightGBM 11.56 (n_sensors=40, mask=0.4).  
 - **Problem 3:** different masks / settings → Table 2 is scientifically weak until a shared mask manifest exists.
 
-### Policy paper eval (`paper_outputs/tables/`)
+### Policy paper eval (`results/tables/`)
 
 - Cohort: **20 sensors**, **1200** steps, event threshold **800** ppm / rapid **80** (≠ `rl.yaml` primary 1000 / 150).  
 - Proposed row: **`Semantic + safety shield (proxy)`** (`proposed_proxy`).  
@@ -126,7 +126,7 @@ Also: `detect_events_series` on a length-`n_sensors` vector treats **sensor inde
 
 - `adjacency is None` → `np.eye(n_sensors)`.  
 - Neighbour disagreement / graph message-passing effectively disabled.  
-- Artifacts exist: `outputs/graphs/adjacency_{spatial,correlation,hybrid}.npy` + `node_order.json`.
+- Artifacts exist: `results/graphs/adjacency_{spatial,correlation,hybrid}.npy` + `node_order.json`.
 
 ### 4.4 Threshold inconsistency
 
@@ -177,15 +177,15 @@ Centralized critic input = `n_agents × obs_dim`. 30-agent checkpoint cannot tra
 
 Moved (not deleted):
 
-- `outputs/legacy_provisional/ppo_60k/`
-- `outputs/legacy_provisional/mappo_50k/`
-- `outputs/legacy_provisional/ablations.csv`
-- `outputs/legacy_provisional/robustness.csv`
-- Copy of `paper_outputs/tables/` → `paper_outputs/legacy_provisional/tables/`
+- `results/legacy_provisional/ppo_60k/`
+- `results/legacy_provisional/mappo_50k/`
+- `results/legacy_provisional/ablations.csv`
+- `results/legacy_provisional/robustness.csv`
+- Copy of `results/tables/` → `results/legacy_provisional/tables/`
 
 New empty directories for final runs:
 
-`outputs/cohorts/`, `reconstruction_final/`, `rl_final/{ppo,mappo,semantic_constrained_mappo}/`, `ablations_final/`, `robustness_final/`, `final_test/`.
+`results/cohorts/`, `reconstruction_final/`, `rl_final/{ppo,mappo,semantic_constrained_mappo}/`, `ablations_final/`, `robustness_final/`, `final_test/`.
 
 ---
 

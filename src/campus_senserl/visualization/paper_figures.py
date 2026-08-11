@@ -1,4 +1,4 @@
-"""Generate manuscript figures for CAMPUS-SenseRL into paper_outputs/figures/."""
+"""Generate manuscript figures for CAMPUS-SenseRL into results/figures/."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ from campus_senserl.visualization.paper_style import (
 
 
 def _fig_dir() -> Path:
-    return ensure_dir(repo_root() / "paper_outputs" / "figures")
+    return ensure_dir(repo_root() / "results" / "figures")
 
 
 def figure_01_sensor_network(devices: pd.DataFrame, n_co2: int, n_total: int) -> Path:

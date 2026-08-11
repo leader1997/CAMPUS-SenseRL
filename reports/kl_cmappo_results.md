@@ -21,6 +21,6 @@ KL-CMAPPO **improves BC on MAE** (9.19 → 8.87) and **AoI** (2.16 → 2.03) at 
 It does **not** beat the hand-designed expert on MAE (expert remains best quality), but it is the best **learned** neural policy and beats Fixed-60 / old shield-MAPPO clearly.
 
 ## Artifacts
-- Checkpoint: `outputs/rl_final/cmappo_kl/seed_42/best_model.pt`
-- Tables: `paper_outputs/tables/table3_policy_comparison.csv`, `table3_policy_summary.csv`
-- Figures: `paper_outputs/figures/fig05_*`, `fig06_*`, `fig08_*`, `fig10_*`
+- Checkpoint: `results/rl_final/cmappo_kl/seed_42/best_model.pt`
+- Tables: `results/tables/table3_policy_comparison.csv`, `table3_policy_summary.csv`
+- Figures: `results/figures/fig05_*`, `fig06_*`, `fig08_*`, `fig10_*`

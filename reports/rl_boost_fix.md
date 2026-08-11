@@ -15,7 +15,7 @@
 
 ## Full-val results (no shield, frozen cohort, hybrid graph, 826 events)
 
-From `outputs/rl_final/policy_eval/boosted_vs_baselines_val.csv`:
+From `results/rl_final/policy_eval/boosted_vs_baselines_val.csv`:
 
 | Method | TX red % | MAE skip | Recall | F1 | Mean AoI |
 | --- | ---: | ---: | ---: | ---: | ---: |

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Generate publication-ready paper_outputs/ figures and tables from real experiments.
+"""Generate publication-ready results/ figures and tables from real experiments.
 
 Never invents metrics. Figures without sufficient evidence are omitted and documented.
 """
@@ -68,7 +68,7 @@ def write_figure_index(entries: list[dict], path: Path) -> None:
     lines = [
         "# Figure Index — CAMPUS-SenseRL",
         "",
-        "All figures live in `paper_outputs/figures/`. Exploratory plots remain under `figures/eda/` or `outputs/` and are **not** manuscript figures.",
+        "All figures live in `results/figures/`. Exploratory plots remain under `figures/eda/` and are **not** manuscript figures.",
         "",
     ]
     for e in entries:
@@ -155,9 +155,9 @@ def write_main_results(path: Path, policy_df: pd.DataFrame, recon_df: pd.DataFra
 
 def main() -> None:
     root = repo_root()
-    fig_dir = ensure_dir(root / "paper_outputs" / "figures")
-    tab_dir = ensure_dir(root / "paper_outputs" / "tables")
-    ensure_dir(root / "outputs" / "eda")  # exploratory sink (do not mix)
+    fig_dir = ensure_dir(root / "results" / "figures")
+    tab_dir = ensure_dir(root / "results" / "tables")
+    ensure_dir(root / "results" / "eda")  # exploratory sink (do not mix)
 
     cfg = load_yaml(root / "configs" / "data.yaml")
     devices = load_devices(root / cfg["paths"]["raw_release"] / cfg["dataset"]["devices_file"])
@@ -218,11 +218,11 @@ def main() -> None:
 
     # ---- Figure 4 + Table 2 ----
     print("[paper] Figure 4 + Table 2…")
-    base_path = root / "outputs" / "reconstruction_baselines" / "baselines_val_mask0.4.csv"
+    base_path = root / "results" / "reconstruction_baselines" / "baselines_val_mask0.4.csv"
     baselines = pd.read_csv(base_path)
     neural_mae = None
     neural_row = None
-    eval_path = root / "outputs" / "models" / "reconstruction" / "eval" / "metrics_val.json"
+    eval_path = root / "results" / "models" / "reconstruction" / "eval" / "metrics_val.json"
     if eval_path.exists():
         ev = json.loads(eval_path.read_text(encoding="utf-8"))
         if "masked_st_graph" in ev:
@@ -328,7 +328,7 @@ def main() -> None:
     )
 
     # ---- Figures 9–11 (conditional) ----
-    abl_path = root / "outputs" / "tables" / "ablations.csv"
+    abl_path = root / "results" / "tables" / "ablations.csv"
     if abl_path.exists():
         abl = pd.read_csv(abl_path)
         p = figure_09_ablation(abl)
@@ -350,7 +350,7 @@ def main() -> None:
                 "Figure 9 / Table 4 ablations are preliminary: several entries duplicate the full-model metrics and do not yet isolate graph/MARL components."
             )
 
-    rob_path = root / "outputs" / "robustness" / "robustness.csv"
+    rob_path = root / "results" / "robustness" / "robustness.csv"
     if rob_path.exists():
         rob = pd.read_csv(rob_path)
         p = figure_10_robustness(rob)
@@ -372,8 +372,8 @@ def main() -> None:
                 "Figure 10 / Table 5 robustness results are synthetic smoke tests (small environment) and are not yet campus-panel multi-seed results."
             )
 
-    ppo_path = root / "outputs" / "experiments" / "ppo" / "metrics.json"
-    mappo_path = root / "outputs" / "experiments" / "mappo" / "metrics.json"
+    ppo_path = root / "results" / "experiments" / "ppo" / "metrics.json"
+    mappo_path = root / "results" / "experiments" / "mappo" / "metrics.json"
     ppo_m = json.loads(ppo_path.read_text(encoding="utf-8"))["metrics"] if ppo_path.exists() else []
     mappo_m = json.loads(mappo_path.read_text(encoding="utf-8"))["metrics"] if mappo_path.exists() else []
     p11 = figure_11_training(ppo_m, mappo_m)
@@ -415,8 +415,8 @@ def main() -> None:
         "Do not claim measured battery-life gains; communication cost is a transmission proxy.",
     ]
 
-    write_figure_index(index, root / "paper_outputs" / "Figure_Index.md")
-    write_main_results(root / "paper_outputs" / "Main_Results.md", policy_df, recon_table, notes)
+    write_figure_index(index, root / "results" / "Figure_Index.md")
+    write_main_results(root / "results" / "Main_Results.md", policy_df, recon_table, notes)
 
     print(f"[done] figures -> {fig_dir}")
     print(f"[done] tables  -> {tab_dir}")

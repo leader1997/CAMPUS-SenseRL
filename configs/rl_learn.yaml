@@ -4,7 +4,7 @@ seed: 42
 environment:
   reconstructor: locf
   proposed_backend: locf
-  reconstructor_checkpoint: outputs/models/reconstruction/best_model.pt
+  reconstructor_checkpoint: results/models/reconstruction/best_model.pt
   graph: hybrid
   graph_fail_fast: true
   cohort: final
@@ -72,4 +72,4 @@ ppo:
 training:
   n_seeds: 1
   eval_every_steps: 15000
-  checkpoint_dir: outputs/rl_final/mappo_boosted
+  checkpoint_dir: results/rl_final/mappo_boosted

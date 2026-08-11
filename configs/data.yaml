@@ -10,8 +10,8 @@ paths:
   data_raw: data/raw
   data_interim: data/interim
   data_processed: data/processed
-  outputs: outputs
-  figures: figures
+  outputs: results
+  figures: results/figures
   reports: reports
   logs: logs
 

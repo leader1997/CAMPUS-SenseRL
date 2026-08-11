@@ -38,7 +38,7 @@ def main() -> None:
     rl_cfg = load_yaml(root / "configs" / "rl.yaml")
     set_seed(int(exp_cfg.get("seed", 42)))
 
-    ckpt = root / "outputs" / "rl_final" / "mappo" / f"seed_{args.seed}" / "final_model.pt"
+    ckpt = root / "results" / "rl_final" / "mappo" / f"seed_{args.seed}" / "final_model.pt"
     if not ckpt.exists():
         raise FileNotFoundError(f"MAPPO checkpoint required: {ckpt}")
 
@@ -70,11 +70,11 @@ def main() -> None:
         rows.append({"condition": "event_threshold", "level": thr, "policy": "mappo", **m})
 
     df = pd.DataFrame(rows)
-    out_dir = ensure_dir(root / "outputs" / "robustness_final")
+    out_dir = ensure_dir(root / "results" / "robustness_final")
     out_csv = out_dir / "robustness_mappo_val.csv"
     df.to_csv(out_csv, index=False)
-    # Also refresh live outputs/robustness with a clear filename
-    legacy = ensure_dir(root / "outputs" / "robustness")
+    # Also refresh live results/robustness with a clear filename
+    legacy = ensure_dir(root / "results" / "robustness")
     df.to_csv(legacy / "robustness_real_val_mappo.csv", index=False)
     print(f"[done] wrote {out_csv}")
     cols = [

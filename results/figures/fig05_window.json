@@ -1,0 +1,8 @@
+{
+  "split": "val",
+  "start_step": 4544,
+  "sensor_index": 5,
+  "fixed15_tx": 187,
+  "kl_tx": 63,
+  "reduction_pct": 66.31016042780749
+}

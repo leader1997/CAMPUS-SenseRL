@@ -10,10 +10,10 @@ logs/
 Thumbs.db
 
 # Local scratch / superseded experiment dumps (do not reintroduce)
-outputs/legacy_provisional/
-outputs/experiments/
-outputs/ablations_final/
-outputs/robustness/
+results/legacy_provisional/
+results/experiments/
+results/ablations_final/
+results/robustness/
 /figures/
 
 # Keep directory placeholders

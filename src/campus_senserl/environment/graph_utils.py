@@ -32,7 +32,7 @@ def load_adjacency_for_sensors(
         return np.eye(n, dtype=np.float32)
 
     root = repo_root()
-    gdir = Path(graphs_dir) if graphs_dir is not None else root / "outputs" / "graphs"
+    gdir = Path(graphs_dir) if graphs_dir is not None else root / "results" / "graphs"
     if not gdir.is_absolute():
         gdir = root / gdir
 

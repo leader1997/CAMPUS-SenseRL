@@ -100,13 +100,13 @@ def freeze_cohorts(
 ) -> dict[str, Any]:
     root = repo_root()
     panel_path = Path(panel_path) if panel_path else root / "data" / "processed" / "co2_panel_15min.parquet"
-    out_dir = ensure_dir(out_dir or root / "outputs" / "cohorts")
+    out_dir = ensure_dir(out_dir or root / "results" / "cohorts")
 
     panel = pd.read_parquet(panel_path, columns=["deveui", "split", "observed", "co2", "floor"])
     coverage = compute_sensor_coverage(panel)
     coverage.to_csv(out_dir / "sensor_coverage.csv", index=False)
 
-    node_order_path = root / "outputs" / "graphs" / "node_order.json"
+    node_order_path = root / "results" / "graphs" / "node_order.json"
     prefer = None
     if node_order_path.exists():
         with open(node_order_path, encoding="utf-8") as f:
@@ -189,13 +189,13 @@ def freeze_cohorts(
 def load_cohort(name: str = "final") -> list[str]:
     root = repo_root()
     # Dedicated frozen files take precedence
-    dedicated = root / "outputs" / "cohorts" / f"{name}_cohort.json"
+    dedicated = root / "results" / "cohorts" / f"{name}_cohort.json"
     if dedicated.exists():
         with open(dedicated, encoding="utf-8") as f:
             return list(json.load(f)["sensor_ids"])
-    path = root / "outputs" / "cohorts" / "final_cohort.json"
+    path = root / "results" / "cohorts" / "final_cohort.json"
     if name != "final":
-        all_path = root / "outputs" / "cohorts" / "all_cohorts.json"
+        all_path = root / "results" / "cohorts" / "all_cohorts.json"
         with open(all_path, encoding="utf-8") as f:
             data = json.load(f)
         if name in data:
@@ -217,14 +217,14 @@ def freeze_heldout_cohort(
     excluding ``exclude_cohort`` IDs. Do not re-select based on policy performance.
     """
     root = repo_root()
-    out_dir = ensure_dir(root / "outputs" / "cohorts")
+    out_dir = ensure_dir(root / "results" / "cohorts")
     panel = pd.read_parquet(
         root / "data" / "processed" / "co2_panel_15min.parquet",
         columns=["deveui", "split", "observed", "co2", "floor"],
     )
     coverage = compute_sensor_coverage(panel)
     exclude = set(load_cohort(exclude_cohort))
-    node_order_path = root / "outputs" / "graphs" / "node_order.json"
+    node_order_path = root / "results" / "graphs" / "node_order.json"
     prefer = None
     if node_order_path.exists():
         with open(node_order_path, encoding="utf-8") as f:

@@ -44,7 +44,7 @@ def main() -> None:
 
     root = repo_root()
     cfg = load_yaml(root / "configs" / "reconstruction.yaml")
-    out_dir = ensure_dir(root / "outputs" / "reconstruction_baselines")
+    out_dir = ensure_dir(root / "results" / "reconstruction_baselines")
 
     wide = pd.read_parquet(root / "data" / "processed" / "co2_wide_observed.parquet")
     panel = pd.read_parquet(root / "data" / "processed" / "co2_panel_15min.parquet")
@@ -88,8 +88,8 @@ def main() -> None:
         print(f"  noncausal_interp (UPPER BOUND): MAE={m['mae']:.2f}")
 
     # KNN neighbours if adjacency available
-    adj_path = root / "outputs" / "graphs" / "adjacency_hybrid.npy"
-    order_path = root / "outputs" / "graphs" / "node_order.json"
+    adj_path = root / "results" / "graphs" / "adjacency_hybrid.npy"
+    order_path = root / "results" / "graphs" / "node_order.json"
     if adj_path.exists() and order_path.exists():
         import json
 

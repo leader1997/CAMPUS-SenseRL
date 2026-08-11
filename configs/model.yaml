@@ -34,6 +34,6 @@ learned:
   max_epochs: 50
 
 outputs:
-  dir: outputs/graphs
+  dir: results/graphs
   save_npz: true
   save_adjacency: true

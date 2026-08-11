@@ -50,7 +50,7 @@ def main() -> None:
 
     root = repo_root()
     cfg = load_yaml(root / "configs" / "reconstruction.yaml")
-    out_dir = ensure_dir(root / "outputs" / "models" / "reconstruction" / "eval")
+    out_dir = ensure_dir(root / "results" / "models" / "reconstruction" / "eval")
 
     wide = pd.read_parquet(root / "data" / "processed" / "co2_wide_observed.parquet")
     panel = pd.read_parquet(root / "data" / "processed" / "co2_panel_15min.parquet")
@@ -72,7 +72,7 @@ def main() -> None:
         "historical_mean": _metrics(hm_res.y_true, hm_res.y_pred),
     }
 
-    ckpt = root / "outputs" / "models" / "reconstruction" / "best_model.pt"
+    ckpt = root / "results" / "models" / "reconstruction" / "best_model.pt"
     if ckpt.exists():
         device = None if args.device in (None, "auto") else args.device
         model, meta = load_reconstruction_model(ckpt, device=device)

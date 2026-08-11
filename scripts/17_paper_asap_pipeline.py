@@ -2,7 +2,7 @@
 """ASAP paper pipeline: tune semantic expert, 5-seed BC, ablations, test freeze.
 
 Does NOT run unconstrained RL (known to collapse). Produces paper-ready tables under
-outputs/rl_final/paper_asap/ and paper_outputs/tables/.
+results/rl_final/paper_asap/ and results/tables/.
 """
 
 from __future__ import annotations
@@ -223,8 +223,8 @@ def main() -> None:
     root = repo_root()
     cfg = load_yaml(root / "configs" / "rl_learn.yaml")
     device = args.device if torch.cuda.is_available() or args.device == "cpu" else "cpu"
-    out = ensure_dir(root / "outputs" / "rl_final" / "paper_asap")
-    paper_tables = ensure_dir(root / "paper_outputs" / "tables")
+    out = ensure_dir(root / "results" / "rl_final" / "paper_asap")
+    paper_tables = ensure_dir(root / "results" / "tables")
 
     # ---- 1) Tune expert ----
     if args.skip_tune:

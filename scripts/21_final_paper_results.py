@@ -51,11 +51,11 @@ def _wrap(pol):
 
 
 def _bc_path(root: Path, seed: int) -> Path:
-    p = root / "outputs" / "rl_final" / "paper_asap" / "bc" / f"seed_{seed}" / "final_model.pt"
+    p = root / "results" / "rl_final" / "paper_asap" / "bc" / f"seed_{seed}" / "final_model.pt"
     if p.exists():
         return p
     # fallback
-    return root / "outputs" / "rl_final" / "paper_asap" / "bc" / "seed_42" / "final_model.pt"
+    return root / "results" / "rl_final" / "paper_asap" / "bc" / "seed_42" / "final_model.pt"
 
 
 def train_seed(seed: int, timesteps: int, device: str, force: bool) -> Path:
@@ -63,7 +63,7 @@ def train_seed(seed: int, timesteps: int, device: str, force: bool) -> Path:
     cfg = load_yaml(root / "configs" / "rl_cmappo.yaml")
     cfg["seed"] = seed
     cfg.setdefault("mappo", {})["total_timesteps"] = timesteps
-    ckpt_dir = root / "outputs" / "rl_final" / "cmappo_kl" / f"seed_{seed}"
+    ckpt_dir = root / "results" / "rl_final" / "cmappo_kl" / f"seed_{seed}"
     best = ckpt_dir / "best_model.pt"
     if best.exists() and not force:
         print(f"[skip-train] seed={seed} existing {best}")
@@ -220,9 +220,9 @@ def main() -> None:
 
     root = repo_root()
     cfg = load_yaml(root / "configs" / "rl_cmappo.yaml")
-    out = ensure_dir(root / "outputs" / "rl_final" / "paper_final")
-    paper_fig = ensure_dir(root / "paper_outputs" / "figures")
-    paper_tab = ensure_dir(root / "paper_outputs" / "tables")
+    out = ensure_dir(root / "results" / "rl_final" / "paper_final")
+    paper_fig = ensure_dir(root / "results" / "figures")
+    paper_tab = ensure_dir(root / "results" / "tables")
 
     # ---- 1) Train 5 seeds ----
     ckpts = {}
@@ -231,9 +231,9 @@ def main() -> None:
             ckpts[seed] = train_seed(seed, args.timesteps, args.device, args.force_retrain)
     else:
         for seed in SEEDS:
-            p = root / "outputs" / "rl_final" / "cmappo_kl" / f"seed_{seed}" / "best_model.pt"
+            p = root / "results" / "rl_final" / "cmappo_kl" / f"seed_{seed}" / "best_model.pt"
             if not p.exists():
-                p = root / "outputs" / "rl_final" / "cmappo_kl" / f"seed_{seed}" / "final_model.pt"
+                p = root / "results" / "rl_final" / "cmappo_kl" / f"seed_{seed}" / "final_model.pt"
             if p.exists():
                 ckpts[seed] = p
 
@@ -313,13 +313,13 @@ def main() -> None:
         )
 
     # ---- 4) Figures ----
-    rob = root / "outputs" / "rl_final" / "corrected_eval" / "robustness_val.csv"
+    rob = root / "results" / "rl_final" / "corrected_eval" / "robustness_val.csv"
     make_figures(df_val, paper_fig, rob if rob.exists() else None)
     if rob.exists():
         pd.read_csv(rob).to_csv(paper_tab / "table5_robustness.csv", index=False)
 
     # Ablation table if present
-    abl = root / "outputs" / "rl_final" / "paper_asap" / "table4_ablation.csv"
+    abl = root / "results" / "rl_final" / "paper_asap" / "table4_ablation.csv"
     if abl.exists():
         pd.read_csv(abl).to_csv(paper_tab / "table4_ablation.csv", index=False)
 

@@ -126,7 +126,7 @@ def main() -> None:
     parser.add_argument("--force", action="store_true", help="Re-run all steps even if outputs exist")
     parser.add_argument("--resume", action="store_true", default=True, help="Skip finished steps (default)")
     parser.add_argument("--no-resume", action="store_true", help="Do not skip existing steps")
-    parser.add_argument("--paper-only", action="store_true", help="Only regenerate paper_outputs")
+    parser.add_argument("--paper-only", action="store_true", help="Only regenerate results")
     parser.add_argument(
         "--profile",
         choices=["fast", "2h", "full"],
@@ -165,21 +165,21 @@ def main() -> None:
     if args.paper_only:
         print_device_banner(device)
         print(
-            "[pipeline] Prefer frozen paper artifacts under paper_outputs/ "
-            "and outputs/rl_final/scientific_validation/. "
+            "[pipeline] Prefer frozen paper artifacts under results/ "
+            "and results/rl_final/scientific_validation/. "
             "Regenerate with scripts/21_final_paper_results.py / 22_scientific_validation.py"
         )
         run_step(
             "22 scientific validation figures",
             ["scripts/22_scientific_validation.py", "--figures-only", "--device", device],
         )
-        print("\n[pipeline] COMPLETE - see paper_outputs/")
+        print("\n[pipeline] COMPLETE - see results/")
         return
 
     steps: list[tuple[str, list[str], tuple[str, ...]]] = [
-        ("01 audit", ["scripts/01_audit_data.py"], ("outputs/data_summary.json",)),
+        ("01 audit", ["scripts/01_audit_data.py"], ("results/data_summary.json",)),
         ("02 preprocess", ["scripts/02_preprocess.py"], ("data/processed/co2_panel_15min.parquet",)),
-        ("03 graphs", ["scripts/03_build_graph.py"], ("outputs/graphs/graph_summary.json",)),
+        ("03 graphs", ["scripts/03_build_graph.py"], ("results/graphs/graph_summary.json",)),
         (
             "05b reconstruction baselines",
             [
@@ -191,7 +191,7 @@ def main() -> None:
                 "--max-sensors",
                 str(profile["baseline_sensors"]),
             ],
-            ("outputs/reconstruction_baselines/baselines_val_mask0.4.csv",),
+            ("results/reconstruction_baselines/baselines_val_mask0.4.csv",),
         ),
         (
             "04 train reconstruction",
@@ -206,7 +206,7 @@ def main() -> None:
                 "--device",
                 device,
             ],
-            ("outputs/models/reconstruction/best_model.pt",),
+            ("results/models/reconstruction/best_model.pt",),
         ),
         (
             "05 evaluate reconstruction",
@@ -221,7 +221,7 @@ def main() -> None:
                 "--device",
                 device,
             ],
-            ("outputs/models/reconstruction/eval/metrics_val.json",),
+            ("results/models/reconstruction/eval/metrics_val.json",),
         ),
         (
             "08 policy baselines",
@@ -234,7 +234,7 @@ def main() -> None:
                 "--max-steps",
                 str(profile["policy_max_steps"]),
             ],
-            ("outputs/baselines/results_val.json",),
+            ("results/baselines/results_val.json",),
         ),
     ]
 
@@ -251,7 +251,7 @@ def main() -> None:
                     "--device",
                     device,
                 ],
-                ("outputs/experiments/ppo/final_model.pt",),
+                ("results/experiments/ppo/final_model.pt",),
             ),
             (
                 "07 train MAPPO",
@@ -264,7 +264,7 @@ def main() -> None:
                     "--device",
                     device,
                 ],
-                ("outputs/experiments/mappo/final_model.pt",),
+                ("results/experiments/mappo/final_model.pt",),
             ),
         ]
 
@@ -274,15 +274,15 @@ def main() -> None:
             (
                 "10 robustness (MAPPO seed_42)",
                 ["scripts/10_run_robustness.py", "--seed", "42"],
-                ("outputs/robustness_final/robustness_mappo_val.csv",),
+                ("results/robustness_final/robustness_mappo_val.csv",),
             ),
         ]
 
     steps.append(
         (
             "12 legacy paper pack (optional early figs)",
-            ["scripts/12_generate_paper_outputs.py"],
-            ("paper_outputs/Figure_Index.md",),
+            ["scripts/12_generate_results.py"],
+            ("results/Figure_Index.md",),
         )
     )
 
@@ -303,8 +303,8 @@ def main() -> None:
 
     print("\n" + "=" * 72)
     print("[pipeline] COMPLETE")
-    print("Paper figures/tables: paper_outputs/")
-    print("Experiment artifacts: outputs/")
+    print("Paper figures/tables: results/")
+    print("Experiment artifacts: results/")
     print("=" * 72)
 
 

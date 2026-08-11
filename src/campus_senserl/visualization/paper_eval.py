@@ -205,7 +205,7 @@ def collect_policy_results(
         "Heuristic proxy only. Final method is KL-CMAPPO (see paper_final results)."
     )
 
-    out = ensure_dir(root / "paper_outputs" / "tables")
+    out = ensure_dir(root / "results" / "tables")
     save_json(
         {
             "split": split,

@@ -809,7 +809,7 @@ def run_audit(cfg: dict[str, Any] | None = None) -> dict[str, Any]:
     figs = make_eda_figures(summary_for_plots, devices, fig_dir)
     summary["eda_figures"] = figs
 
-    out_json = root / "outputs" / "data_summary.json"
+    out_json = root / "results" / "data_summary.json"
     print(f"[audit] Writing {out_json}")
     save_json(summary, out_json)
 

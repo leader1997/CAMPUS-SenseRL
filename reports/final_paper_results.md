@@ -29,7 +29,7 @@ Protocol: 5 seeds × 60k KL-CMAPPO steps, feasible-only checkpoints, shield OFF,
 Fixed intervals collapse on test event recall; proposed stack does not.
 
 ## Artifacts
-- Raw: `outputs/rl_final/paper_final/`
-- Tables: `paper_outputs/tables/table3_*.csv`
-- Figures: `paper_outputs/figures/fig05_*`, `fig06_*`, `fig08_*`, `fig10_*`
-- Checkpoints: `outputs/rl_final/cmappo_kl/seed_*/best_model.pt`
+- Raw: `results/rl_final/paper_final/`
+- Tables: `results/tables/table3_*.csv`
+- Figures: `results/figures/fig05_*`, `fig06_*`, `fig08_*`, `fig10_*`
+- Checkpoints: `results/rl_final/cmappo_kl/seed_*/best_model.pt`

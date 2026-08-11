@@ -228,7 +228,7 @@ class BoostedMAPPOTrainer:
         root = repo_root()
         ckpt_dir = ensure_dir(
             checkpoint_dir
-            or root / "outputs" / "rl_final" / "mappo_boosted" / f"seed_{self.cfg.get('seed', 42)}"
+            or root / "results" / "rl_final" / "mappo_boosted" / f"seed_{self.cfg.get('seed', 42)}"
         )
         metrics: list[dict[str, Any]] = list(bc_logs)
         global_step = 0

@@ -63,7 +63,7 @@ def _build_stgnn_online(
 ) -> ReconstructorFn:
     root = repo_root()
     env_cfg = cfg.get("environment", {})
-    ckpt = Path(env_cfg.get("reconstructor_checkpoint", "outputs/models/reconstruction/best_model.pt"))
+    ckpt = Path(env_cfg.get("reconstructor_checkpoint", "results/models/reconstruction/best_model.pt"))
     if not ckpt.is_absolute():
         ckpt = root / ckpt
     if not ckpt.exists():

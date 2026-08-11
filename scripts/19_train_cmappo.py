@@ -30,7 +30,7 @@ def main() -> None:
     if args.timesteps is not None:
         cfg.setdefault("mappo", {})["total_timesteps"] = args.timesteps
     ckpt_dir = args.checkpoint_dir or str(
-        root / "outputs" / "rl_final" / "cmappo_kl" / f"seed_{args.seed}"
+        root / "results" / "rl_final" / "cmappo_kl" / f"seed_{args.seed}"
     )
     out = run_constrained_mappo(
         cfg,

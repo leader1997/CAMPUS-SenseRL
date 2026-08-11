@@ -66,7 +66,7 @@ def main() -> None:
         print(f"[baseline] Running {name}…")
         results[name] = run_policy(env, policy, max_steps=args.max_steps)
 
-    out_dir = ensure_dir(repo_root() / "outputs" / "baselines")
+    out_dir = ensure_dir(repo_root() / "results" / "baselines")
     save_json(results, out_dir / f"results_{args.split}.json")
     print(f"[done] wrote {out_dir / f'results_{args.split}.json'}")
     for name, m in results.items():

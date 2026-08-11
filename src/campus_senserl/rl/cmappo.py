@@ -168,7 +168,7 @@ class ConstrainedMAPPOTrainer:
         root = repo_root()
         ckpt_dir = ensure_dir(
             checkpoint_dir
-            or root / "outputs" / "rl_final" / "cmappo_kl" / f"seed_{self.cfg.get('seed', 42)}"
+            or root / "results" / "rl_final" / "cmappo_kl" / f"seed_{self.cfg.get('seed', 42)}"
         )
         metrics: list[dict[str, Any]] = []
         global_step = 0

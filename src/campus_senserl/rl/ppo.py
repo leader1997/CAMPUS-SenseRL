@@ -79,7 +79,7 @@ class PPOTrainer:
 
         root = repo_root()
         ckpt_dir = ensure_dir(
-            checkpoint_dir or root / self.cfg.get("training", {}).get("checkpoint_dir", "outputs/experiments") / "ppo"
+            checkpoint_dir or root / self.cfg.get("training", {}).get("checkpoint_dir", "results/experiments") / "ppo"
         )
         metrics: list[dict[str, Any]] = []
         global_step = 0

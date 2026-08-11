@@ -109,7 +109,7 @@ class MAPPOTrainer:
 
         root = repo_root()
         ckpt_dir = ensure_dir(
-            checkpoint_dir or root / self.cfg.get("training", {}).get("checkpoint_dir", "outputs/experiments") / "mappo"
+            checkpoint_dir or root / self.cfg.get("training", {}).get("checkpoint_dir", "results/experiments") / "mappo"
         )
         metrics: list[dict[str, Any]] = []
         global_step = 0

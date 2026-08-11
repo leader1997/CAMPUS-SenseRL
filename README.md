@@ -77,7 +77,7 @@ Other options:
 .\.venv\Scripts\python.exe scripts\run_full_pipeline.py --paper-only
 ```
 
-This runs audit → preprocess → graphs → reconstruction → baselines → RL/MARL → ablations → **`paper_outputs/`**.
+This runs audit → preprocess → graphs → reconstruction → baselines → RL/MARL → ablations → **`results/`**.
 
 ---
 
@@ -95,7 +95,7 @@ This runs audit → preprocess → graphs → reconstruction → baselines → R
 | 07 | `scripts/07_train_marl.py` | Parameter-sharing MAPPO (negative baseline) |
 | 08 | `scripts/08_run_baselines.py` | Fixed-interval and heuristic baselines |
 | 10 | `scripts/10_run_robustness.py` | MAPPO packet-loss smoke (seed_42) |
-| 12 | `scripts/12_generate_paper_outputs.py` | Early manuscript helpers (legacy pack) |
+| 12 | `scripts/12_generate_results.py` | Early manuscript helpers (legacy pack) |
 | 13 | `scripts/13_run_finalization.py` | Cohort freeze + fair recon benchmark |
 | 16 | `scripts/16_distill_expert_policy.py` | BC distillation from semantic expert |
 | 17 | `scripts/17_paper_asap_pipeline.py` | Expert + BC multi-seed ASAP pipeline |
@@ -106,8 +106,8 @@ This runs audit → preprocess → graphs → reconstruction → baselines → R
 Authoritative manuscript numbers/figures:
 
 ```
-paper_outputs/figures/   # 300 DPI PNG + PDF
-paper_outputs/tables/
+results/figures/   # 300 DPI PNG + PDF
+results/tables/
 reports/final_paper_results.md
 reports/scientific_validation.md
 ```
@@ -118,7 +118,7 @@ Example (core data stack):
 .venv\Scripts\python.exe scripts/02_preprocess.py
 .venv\Scripts\python.exe scripts/03_build_graph.py
 .venv\Scripts\python.exe scripts/16_distill_expert_policy.py
-.venv\Scripts\python.exe scripts/19_train_cmappo.py --bc-checkpoint outputs/rl_final/paper_asap/bc/seed_42/final_model.pt
+.venv\Scripts\python.exe scripts/19_train_cmappo.py --bc-checkpoint results/rl_final/paper_asap/bc/seed_42/final_model.pt
 .venv\Scripts\python.exe scripts/22_scientific_validation.py --figures-only
 ```
 
@@ -156,13 +156,12 @@ Run tests:
 ```
 configs/           YAML experiment and model settings
 data/              Raw release + processed parquet (generated)
-outputs/           Models, cohorts, graphs, rl_final, recon
-paper_outputs/     Manuscript figures and tables
+results/           All experiment artifacts, frozen tables, figures, checkpoints
 reports/           Claim-ready result notes
 scripts/           Pipeline entry points
 src/campus_senserl/
   data/            Preprocessing, splits, features, cohorts
-  environment/     Trace-driven Gymnasium env, shield, events
+  environment/     Trace-driven Gymnasium env, events
   evaluation/      Metrics, RL eval, fair reconstruction
   graph/           Sensor graph construction
   models/          Reconstruction and baselines

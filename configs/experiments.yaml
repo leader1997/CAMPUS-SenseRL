@@ -45,5 +45,5 @@ statistics:
 
 outputs:
   figures_dir: figures/paper
-  tables_dir: outputs/tables
+  tables_dir: results/tables
   report_path: reports/research_report.md

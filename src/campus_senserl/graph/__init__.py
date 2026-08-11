@@ -235,7 +235,7 @@ def run_build_graphs(cfg: dict[str, Any] | None = None) -> dict[str, Any]:
     root = repo_root()
     cfg = cfg or load_yaml(root / "configs" / "model.yaml")
     set_seed(int(cfg.get("seed", 42)))
-    out_dir = ensure_dir(root / cfg.get("outputs", {}).get("dir", "outputs/graphs"))
+    out_dir = ensure_dir(root / cfg.get("outputs", {}).get("dir", "results/graphs"))
 
     devices = load_device_meta()
     panel_path = root / "data" / "processed" / "co2_panel_15min.parquet"

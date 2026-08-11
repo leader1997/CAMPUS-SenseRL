@@ -32,7 +32,7 @@
 
 **Network:** RSSI and LSNR available. Spreading factor, payload size, gateway IDs, and measured joules/TX **not** available → report **transmission reduction (%)**, not measured battery-life gains.
 
-Full audit: `reports/data_audit.md`, `outputs/data_summary.json`.
+Full audit: `reports/data_audit.md`, `results/data_summary.json`.
 
 ---
 
@@ -179,4 +179,4 @@ python scripts/10_run_robustness.py
 python scripts/11_generate_paper_results.py
 ```
 
-Configs: `configs/*.yaml`. Seeds, package versions, and experiment folders under `outputs/experiments/`.
+Configs: `configs/*.yaml`. Seeds, package versions, and experiment folders under `results/experiments/`.

@@ -56,14 +56,14 @@ def _wrap(pol):
 
 
 def _bc_ckpt(root: Path, seed: int) -> Path:
-    p = root / "outputs" / "rl_final" / "paper_asap" / "bc" / f"seed_{seed}" / "final_model.pt"
+    p = root / "results" / "rl_final" / "paper_asap" / "bc" / f"seed_{seed}" / "final_model.pt"
     if p.exists():
         return p
-    return root / "outputs" / "rl_final" / "paper_asap" / "bc" / "seed_42" / "final_model.pt"
+    return root / "results" / "rl_final" / "paper_asap" / "bc" / "seed_42" / "final_model.pt"
 
 
 def _cmappo_ckpt(root: Path, seed: int) -> Path:
-    return root / "outputs" / "rl_final" / "cmappo_kl" / f"seed_{seed}" / "best_model.pt"
+    return root / "results" / "rl_final" / "cmappo_kl" / f"seed_{seed}" / "best_model.pt"
 
 
 def _cfg(root: Path) -> dict:
@@ -277,7 +277,7 @@ def run_ablations(root: Path, device: str, out: Path, timesteps: int, force: boo
     base["seed"] = 42
     base.setdefault("mappo", {})["total_timesteps"] = timesteps
     bc = _bc_ckpt(root, 42)
-    abl_dir = ensure_dir(root / "outputs" / "rl_final" / "cmappo_ablations")
+    abl_dir = ensure_dir(root / "results" / "rl_final" / "cmappo_ablations")
 
     variants = [
         "bc_only",
@@ -400,8 +400,8 @@ def run_heldout(root: Path, device: str, out: Path) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 def regenerate_figures(root: Path, sci: Path) -> None:
     print("[5] regenerate paper figures @ 300 DPI...")
-    paper_fig = ensure_dir(root / "paper_outputs" / "figures")
-    paper_tab = ensure_dir(root / "paper_outputs" / "tables")
+    paper_fig = ensure_dir(root / "results" / "figures")
+    paper_tab = ensure_dir(root / "results" / "tables")
 
     # Copy tables
     mapping = {
@@ -623,7 +623,7 @@ def main() -> None:
     args = parser.parse_args()
 
     root = repo_root()
-    out = ensure_dir(root / "outputs" / "rl_final" / "scientific_validation")
+    out = ensure_dir(root / "results" / "rl_final" / "scientific_validation")
     meta = {
         "protocol": "post-freeze scientific validation",
         "core_cmappo_frozen": True,

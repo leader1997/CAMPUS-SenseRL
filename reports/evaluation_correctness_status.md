@@ -4,7 +4,7 @@
 
 Kept the codebase. Fixed wiring/evaluation bugs. **Did not retrain.**
 
-Full validation comparison is complete: `outputs/rl_final/policy_eval/`.
+Full validation comparison is complete: `results/rl_final/policy_eval/`.
 
 ## Fixes shipped
 
@@ -17,7 +17,7 @@ Full validation comparison is complete: `outputs/rl_final/policy_eval/`.
 | ChangeThreshold crash | `__post_init__` initializes `_last_local` |
 | Packet loss = measurement fail | Env drops delivery with `local_available` unchanged |
 | Synthetic robustness | `scripts/10_run_robustness.py` → real val + MAPPO + `packet_loss_rate` |
-| Stale paper figs/tables | → `paper_outputs/legacy_provisional/` |
+| Stale paper figs/tables | → `results/legacy_provisional/` |
 
 ## Full validation (entire val split, n=40, hybrid, 826 events @ 1000 ppm)
 
@@ -72,10 +72,10 @@ Approx. same n (~82.7k hidden cells). LOCF MAE ≈ 10.34 still best. Real ST-GNN
 ## Still open
 
 1. Real-val robustness sweep (`10_run_robustness.py` full period) — not yet run after rewrite
-2. True ablations (feature / reward / graph off) — `outputs/ablations_final/` still empty
+2. True ablations (feature / reward / graph off) — `results/ablations_final/` still empty
 3. Clean train-time MAPPO±shield (current no-shield is eval-only on shield-trained ckpt)
 4. Slight fair-recon n gaps (ST-GNN warm-up; tree merge) — tighten if publishing recon table
 
 ## Do not put in paper yet
 
-`paper_outputs/legacy_provisional/`, old proxy figures, fake ablation table.
+`results/legacy_provisional/`, old proxy figures, fake ablation table.

@@ -6,7 +6,7 @@ Claim phrasing: KL-CMAPPO trades ~2.24 pp extra communication for better MAE/rec
 
 Algorithm description: **KL-regularized constrained multi-agent policy optimization with validation-enforced feasibility**.
 
-Artifacts: `C:/Users/MossabBatal/Desktop/OULU_RL/outputs/rl_final/scientific_validation`
+Artifacts: `C:/Users/MossabBatal/Desktop/OULU_RL/results/rl_final/scientific_validation`
 
 ## Outputs
 - Matched budget: `matched_budget_summary.csv` → Fig 5/6/8

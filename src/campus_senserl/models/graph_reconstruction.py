@@ -348,7 +348,7 @@ def _load_graph_data(
     root = repo_root()
     wide_path = root / "data" / "processed" / "co2_wide_observed.parquet"
     panel_path = root / "data" / "processed" / "co2_panel_15min.parquet"
-    graph_dir = root / "outputs" / "graphs"
+    graph_dir = root / "results" / "graphs"
     if not wide_path.exists():
         raise FileNotFoundError("Run scripts/02_preprocess.py first.")
     wide = pd.read_parquet(wide_path)
@@ -488,7 +488,7 @@ def train_reconstruction_model(
     best_val = float("inf")
     patience = int(neural.get("early_stopping_patience", 8))
     bad = 0
-    out_dir = ensure_dir(root / "outputs" / "models" / "reconstruction")
+    out_dir = ensure_dir(root / "results" / "models" / "reconstruction")
     metrics_log: list[dict[str, Any]] = []
 
     for epoch in range(int(neural.get("epochs", 40))):
@@ -548,7 +548,7 @@ def load_reconstruction_model(
     device: str | None = None,
 ) -> tuple[MaskedSpatioTemporalGraphNetwork, dict[str, Any]]:
     root = repo_root()
-    path = Path(checkpoint) if checkpoint else root / "outputs" / "models" / "reconstruction" / "best_model.pt"
+    path = Path(checkpoint) if checkpoint else root / "results" / "models" / "reconstruction" / "best_model.pt"
     ckpt = torch.load(path, map_location="cpu", weights_only=False)
     cfg = ckpt.get("cfg", {})
     neural = cfg.get("neural", {})

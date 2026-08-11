@@ -81,7 +81,7 @@ def main() -> None:
                 print(f"[distill] step={step} loss={loss.item():.4f} acc={acc:.4f} alpha={float(actor.residual_scale):.3f}")
             buf_o, buf_a = [], []
 
-    out_dir = ensure_dir(root / "outputs" / "rl_final" / "mappo_boosted" / f"seed_{args.seed}")
+    out_dir = ensure_dir(root / "results" / "rl_final" / "mappo_boosted" / f"seed_{args.seed}")
     ckpt = {
         "actor": actor.state_dict(),
         "critic": critic.state_dict(),
@@ -140,7 +140,7 @@ def main() -> None:
         print(f"  red={bm['transmission_reduction_pct']:.1f}% mae={bm['mae_skipped']} recall={bm['event_recall']}")
 
     df = pd.DataFrame(rows)
-    cmp_path = ensure_dir(root / "outputs" / "rl_final" / "policy_eval") / "boosted_vs_baselines_val.csv"
+    cmp_path = ensure_dir(root / "results" / "rl_final" / "policy_eval") / "boosted_vs_baselines_val.csv"
     df.to_csv(cmp_path, index=False)
     print(f"[done] wrote {cmp_path}")
     show = df[["method", "transmission_reduction_pct", "mae_skipped", "event_recall", "event_f1", "mean_aoi"]]

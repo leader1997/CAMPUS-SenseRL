@@ -150,7 +150,7 @@ def main() -> None:
 
     # ---- Phase 3: fair reconstruction ----
     print("[finalization] Phase 3: fair reconstruction benchmark")
-    decision_path = ROOT / "outputs" / "reconstruction_final" / "fair_benchmark" / "reconstructor_decision.json"
+    decision_path = ROOT / "results" / "reconstruction_final" / "fair_benchmark" / "reconstructor_decision.json"
     if args.skip_fair and decision_path.exists():
         with open(decision_path, encoding="utf-8") as f:
             decision = json.load(f)
@@ -186,8 +186,8 @@ def main() -> None:
         # Persist sensors into a temp note file for train script via max_sensors order:
         # train uses node_order prefix — write cohort-aligned node_order override
         cohort_order = {"node_order": sensors}
-        ensure_dir(ROOT / "outputs" / "cohorts")
-        save_json(cohort_order, ROOT / "outputs" / "cohorts" / "node_order_override.json")
+        ensure_dir(ROOT / "results" / "cohorts")
+        save_json(cohort_order, ROOT / "results" / "cohorts" / "node_order_override.json")
         run(
             [
                 PY,
@@ -207,14 +207,14 @@ def main() -> None:
             cfg["seed"] = seed
             cfg.setdefault("ppo", {})["total_timesteps"] = prof["ppo_steps"]
             cfg.setdefault("mappo", {})["total_timesteps"] = prof["mappo_steps"]
-            cfg_path = ensure_dir(ROOT / "outputs" / "rl_final" / "configs") / f"seed_{seed}.yaml"
+            cfg_path = ensure_dir(ROOT / "results" / "rl_final" / "configs") / f"seed_{seed}.yaml"
             import yaml
 
             with open(cfg_path, "w", encoding="utf-8") as f:
                 yaml.safe_dump(cfg, f)
 
-            ppo_dir = ensure_dir(ROOT / "outputs" / "rl_final" / "ppo" / f"seed_{seed}")
-            mappo_dir = ensure_dir(ROOT / "outputs" / "rl_final" / "mappo" / f"seed_{seed}")
+            ppo_dir = ensure_dir(ROOT / "results" / "rl_final" / "ppo" / f"seed_{seed}")
+            mappo_dir = ensure_dir(ROOT / "results" / "rl_final" / "mappo" / f"seed_{seed}")
             if (ppo_dir / "final_model.pt").exists():
                 print(f"[finalization] skip PPO seed={seed} (checkpoint exists)")
             else:
@@ -255,7 +255,7 @@ def main() -> None:
                 )
 
             # Semantic + safety constrained MAPPO = MAPPO with shield enabled (default)
-            sem_dir = ensure_dir(ROOT / "outputs" / "rl_final" / "semantic_constrained_mappo" / f"seed_{seed}")
+            sem_dir = ensure_dir(ROOT / "results" / "rl_final" / "semantic_constrained_mappo" / f"seed_{seed}")
             # Copy/link metrics for clarity
             import shutil
 
@@ -299,8 +299,8 @@ def main() -> None:
     import pandas as pd
 
     val_df = pd.DataFrame(rows)
-    ensure_dir(ROOT / "outputs" / "rl_final")
-    val_df.to_csv(ROOT / "outputs" / "rl_final" / "matched_budget_val.csv", index=False)
+    ensure_dir(ROOT / "results" / "rl_final")
+    val_df.to_csv(ROOT / "results" / "rl_final" / "matched_budget_val.csv", index=False)
 
     # ---- Real robustness (val traces) ----
     print("[finalization] real robustness on VAL traces")
@@ -316,12 +316,12 @@ def main() -> None:
             str(prof["eval_steps"]),
         ]
     )
-    rob_src = ROOT / "outputs" / "robustness" / "robustness.csv"
+    rob_src = ROOT / "results" / "robustness" / "robustness.csv"
     if rob_src.exists():
-        ensure_dir(ROOT / "outputs" / "robustness_final")
+        ensure_dir(ROOT / "results" / "robustness_final")
         import shutil
 
-        shutil.copy2(rob_src, ROOT / "outputs" / "robustness_final" / "robustness_val.csv")
+        shutil.copy2(rob_src, ROOT / "results" / "robustness_final" / "robustness_val.csv")
 
     # ---- Freeze protocol BEFORE test ----
     protocol = {
@@ -343,8 +343,8 @@ def main() -> None:
         "frozen": True,
         "warning": "Do not tune using test results after this file is written.",
     }
-    save_json(protocol, ROOT / "outputs" / "final_protocol.json")
-    print("[finalization] wrote outputs/final_protocol.json — TEST SPLIT NOW FROZEN")
+    save_json(protocol, ROOT / "results" / "final_protocol.json")
+    print("[finalization] wrote results/final_protocol.json — TEST SPLIT NOW FROZEN")
 
     # ---- One test pass ----
     print("[finalization] final TEST evaluation (once)")
@@ -360,11 +360,11 @@ def main() -> None:
         m["split"] = "test"
         test_rows.append(m)
     test_df = pd.DataFrame(test_rows)
-    ensure_dir(ROOT / "outputs" / "final_test")
-    test_df.to_csv(ROOT / "outputs" / "final_test" / "policy_comparison_test.csv", index=False)
+    ensure_dir(ROOT / "results" / "final_test")
+    test_df.to_csv(ROOT / "results" / "final_test" / "policy_comparison_test.csv", index=False)
 
     # ---- Paper outputs ----
-    run([PY, "scripts/12_generate_paper_outputs.py"])
+    run([PY, "scripts/12_generate_results.py"])
 
     # ---- Final research report ----
     report = ROOT / "reports" / "final_research_report.md"
@@ -374,16 +374,16 @@ def main() -> None:
 Generated by `scripts/13_run_finalization.py` (profile={args.profile}).
 
 ## 1. Dataset cohort
-- Frozen file: `outputs/cohorts/final_cohort.json`
+- Frozen file: `results/cohorts/final_cohort.json`
 - n_sensors = {len(sensors)}
 - Selection: train coverage ranking with val/test eligibility gates only
 
 ## 2–3. Splits / graphs
 - Chronological 60/20/20 (see `configs/data.yaml`)
-- Graph: hybrid (`outputs/graphs/`), correlation fit on train only
+- Graph: hybrid (`results/graphs/`), correlation fit on train only
 
 ## 4–6. Reconstruction
-- Fair benchmark: `outputs/reconstruction_final/fair_benchmark/`
+- Fair benchmark: `results/reconstruction_final/fair_benchmark/`
 - Decision: `{json.dumps(decision)}`
 - Online RL reconstructor: `{rl_cfg['environment'].get('reconstructor')}` ({rl_cfg['environment'].get('reconstructor_note', '')})
 
@@ -394,11 +394,11 @@ Generated by `scripts/13_run_finalization.py` (profile={args.profile}).
 - Critic: mean-pool (variable agent count)
 
 ## 11–16. Evaluation artifacts
-- Val matched budgets: `outputs/rl_final/matched_budget_val.csv`
-- Robustness: `outputs/robustness_final/`
-- Protocol freeze: `outputs/final_protocol.json`
-- Test (once): `outputs/final_test/policy_comparison_test.csv`
-- Paper pack: `paper_outputs/`
+- Val matched budgets: `results/rl_final/matched_budget_val.csv`
+- Robustness: `results/robustness_final/`
+- Protocol freeze: `results/final_protocol.json`
+- Test (once): `results/final_test/policy_comparison_test.csv`
+- Paper pack: `results/`
 
 ## Hypotheses (update after inspecting metrics)
 | Hypothesis | Classification |

@@ -44,7 +44,7 @@ def main() -> None:
             "--force-ablation",
         ]
     )
-    run([PY, "scripts/24_final_clear_figures.py"])
+    run([PY, "scripts/28_manuscript_figures.py"])
     print("\n[done] full KL-CMAPPO pipeline", flush=True)
 
 

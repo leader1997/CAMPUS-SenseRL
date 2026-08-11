@@ -6,7 +6,7 @@
 
 **Not** unconstrained MAPPO from scratch (that collapses without the shield).
 
-Frozen expert thresholds (`outputs/rl_final/paper_asap/expert_best.json`):
+Frozen expert thresholds (`results/rl_final/paper_asap/expert_best.json`):
 
 - `delta_ppm=35`, `aoi_threshold=3.5`, `co2_ppm=1000`, `disagreement_ppm=20`
 
@@ -39,10 +39,10 @@ Disagreement rule matters most for MAE (`expert_no_disagree` → MAE 10.17). Rem
 
 ## Artifacts
 
-- `outputs/rl_final/paper_asap/`
-- `paper_outputs/tables/table3_policy_comparison.csv`
-- `paper_outputs/tables/table3_policy_comparison_test.csv`
-- `paper_outputs/tables/table4_ablation.csv`
+- `results/rl_final/paper_asap/`
+- `results/tables/table3_policy_comparison.csv`
+- `results/tables/table3_policy_comparison_test.csv`
+- `results/tables/table4_ablation.csv`
 
 ## Paper claim (safe)
 

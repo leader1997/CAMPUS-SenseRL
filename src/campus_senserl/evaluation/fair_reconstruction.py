@@ -130,7 +130,7 @@ def run_fair_benchmark(
 ) -> dict[str, Any]:
     root = repo_root()
     seeds = seeds or DEFAULT_SEEDS
-    out_dir = ensure_dir(out_dir or root / "outputs" / "reconstruction_final" / "fair_benchmark")
+    out_dir = ensure_dir(out_dir or root / "results" / "reconstruction_final" / "fair_benchmark")
     panel = pd.read_parquet(root / "data" / "processed" / "co2_panel_15min.parquet")
     wide = _wide_for_sensors(panel, sensors, split)
     observed = _observed_mask(panel, sensors, split)
@@ -218,7 +218,7 @@ def run_fair_benchmark(
 
             from campus_senserl.models.graph_reconstruction import load_reconstruction_model
 
-            ckpt = root / "outputs" / "models" / "reconstruction" / "best_model.pt"
+            ckpt = root / "results" / "models" / "reconstruction" / "best_model.pt"
             if not ckpt.exists():
                 raise FileNotFoundError(str(ckpt))
             model, meta = load_reconstruction_model(ckpt)
