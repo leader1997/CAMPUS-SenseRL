@@ -1,5 +1,6 @@
 # Graph construction configuration
-# Edges represent statistical/spatial relationships, NOT ventilation topology.
+# Spatial/statistical relation graph (server-derived contextual relations).
+# NOT LoRaWAN links, sensor-to-sensor communication, airflow, or a physical mesh.
 
 seed: 42
 

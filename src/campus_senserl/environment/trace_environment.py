@@ -367,10 +367,18 @@ class TraceDrivenCampusEnv(gym.Env):
         self.last_lsnr = np.full(self.n_sensors, np.nan, dtype=np.float32)
         self.link_aoi = np.full(self.n_sensors, self.max_aoi, dtype=np.float32)
         self._prev_server_monitor = np.full(self.n_sensors, np.nan, dtype=np.float32)
-        # Post-shield wireless packet loss (communication failure, not measurement failure)
+        # Post-decision wireless packet loss (communication failure, not measurement failure)
         self.packet_loss_rate = float(env_cfg.get("packet_loss_rate", 0.0))
         stress_seed = int(env_cfg.get("stress_seed", cfg.get("seed", 42)))
         self._loss_rng = np.random.default_rng(stress_seed)
+        # per_attempt: legacy Bernoulli draw only when TX is attempted.
+        # independent_slots: shared (t, sensor) mask so methods are comparable.
+        self.packet_loss_mode = str(env_cfg.get("packet_loss_mode", "per_attempt"))
+        self.packet_loss_mask = None
+        if self.packet_loss_rate > 0.0 and self.packet_loss_mode == "independent_slots":
+            mask_seed = int(env_cfg.get("packet_loss_mask_seed", stress_seed))
+            mask_rng = np.random.default_rng(mask_seed)
+            self.packet_loss_mask = mask_rng.random((self.n_steps, self.n_sensors)) < self.packet_loss_rate
 
         # Robustness stress: permanent / temporary sensor outages + neighbour (edge) loss
         outage_frac = float(env_cfg.get("sensor_outage_fraction", 0.0))
@@ -440,7 +448,7 @@ class TraceDrivenCampusEnv(gym.Env):
         return self.locf.predict(self.server_state, self.time_feats[self._t], self.adjacency)
 
     def _neighbor_summary(self, recon: np.ndarray) -> np.ndarray:
-        """Mean reconstructed neighbour CO2 (graph-aware); 0 if identity/no neighbours."""
+        """Mean reconstructed neighbouring-sensor context (relation graph, not links)."""
         out = np.zeros(self.n_sensors, dtype=np.float32)
         for i in range(self.n_sensors):
             neigh = np.where(self.adjacency[i] > 0)[0]
@@ -483,6 +491,14 @@ class TraceDrivenCampusEnv(gym.Env):
         ):
             avail[self.temp_outage_mask] = False
         return avail
+
+    def _packet_lost(self, t: int, i: int) -> bool:
+        """True iff an attempted TX at (t, i) is dropped after the policy decision."""
+        if self.packet_loss_mask is not None:
+            return bool(self.packet_loss_mask[t, i])
+        if self.packet_loss_rate > 0.0:
+            return bool(self._loss_rng.random() < self.packet_loss_rate)
+        return False
 
     def _agent_observation(self, recon: np.ndarray, unc: np.ndarray) -> np.ndarray:
         assert self.server_state is not None
@@ -578,7 +594,7 @@ class TraceDrivenCampusEnv(gym.Env):
                 tx_requested += 1
                 # Packet loss: sensor measured and requested TX, but server never receives it.
                 # Local availability stays True; only delivery fails.
-                if self.packet_loss_rate > 0.0 and self._loss_rng.random() < self.packet_loss_rate:
+                if self._packet_lost(t, i):
                     tx_dropped += 1
                     self.server_state.rl_skipped[i] = True
                     self.rl_skipped[t, i] = True

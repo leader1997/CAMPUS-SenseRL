@@ -32,6 +32,8 @@ def make_final_env(
     cfg: dict[str, Any] | None = None,
     multi_agent: bool = True,
     packet_loss_rate: float = 0.0,
+    packet_loss_mode: str = "per_attempt",
+    packet_loss_mask_seed: int | None = None,
     sensor_ids: list[str] | None = None,
     sensor_outage_fraction: float = 0.0,
     temp_outage_fraction: float = 0.0,
@@ -45,7 +47,8 @@ def make_final_env(
       - packet_loss_rate: post-decision uplink drops
       - sensor_outage_fraction: permanent random sensor unavailability
       - temp_outage_*: mid-trace block outage for a sensor subset
-      - edge_drop_fraction: random hybrid-graph edge removal (neighbour loss)
+      - packet_loss_mode: ``per_attempt`` (legacy) or ``independent_slots`` (shared mask)
+      - edge_drop_fraction: random hybrid-graph edge removal (contextual-relation loss)
     """
     root = repo_root()
     cfg = dict(cfg or load_yaml(root / "configs" / "rl.yaml"))
@@ -54,6 +57,9 @@ def make_final_env(
     env_cfg["graph"] = env_cfg.get("graph", "hybrid")
     env_cfg["graph_fail_fast"] = True
     env_cfg["packet_loss_rate"] = float(packet_loss_rate)
+    env_cfg["packet_loss_mode"] = str(packet_loss_mode)
+    if packet_loss_mask_seed is not None:
+        env_cfg["packet_loss_mask_seed"] = int(packet_loss_mask_seed)
     env_cfg["sensor_outage_fraction"] = float(sensor_outage_fraction)
     env_cfg["temp_outage_fraction"] = float(temp_outage_fraction)
     env_cfg["temp_outage_duration_frac"] = float(temp_outage_duration_frac)

@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "warnings": [],
+  "kl_checkpoints": {
+    "42": "C:\\Users\\test\\Desktop\\CAMPUS-SenseRL\\results\\rl_final\\cmappo_kl\\seed_42\\best_model.pt",
+    "123": "C:\\Users\\test\\Desktop\\CAMPUS-SenseRL\\results\\rl_final\\cmappo_kl\\seed_123\\best_model.pt",
+    "2024": "C:\\Users\\test\\Desktop\\CAMPUS-SenseRL\\results\\rl_final\\cmappo_kl\\seed_2024\\best_model.pt",
+    "3407": "C:\\Users\\test\\Desktop\\CAMPUS-SenseRL\\results\\rl_final\\cmappo_kl\\seed_3407\\best_model.pt",
+    "9999": "C:\\Users\\test\\Desktop\\CAMPUS-SenseRL\\results\\rl_final\\cmappo_kl\\seed_9999\\best_model.pt"
+  },
+  "bc_checkpoints": {},
+  "frozen_test_seed": 123,
+  "delta_selection": "delta_ppm=25,heartbeat=3",
+  "packet_loss_mask_seed": 20260317,
+  "training_performed": false,
+  "n_master_rows": 112
+}

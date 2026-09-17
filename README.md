@@ -102,6 +102,8 @@ This runs audit → preprocess → graphs → reconstruction → baselines → R
 | 19 | `scripts/19_train_cmappo.py` | Train KL-CMAPPO from a BC checkpoint |
 | 21 | `scripts/21_final_paper_results.py` | **Frozen 5-seed KL-CMAPPO + test** |
 | 22 | `scripts/22_scientific_validation.py` | **Matched-budget / robustness / ablation / held-out** |
+| 29 | `scripts/29_revision_evaluation.py` | **Revision: full-method comparison (no training)** |
+| 30 | `scripts/30_revision_figures.py` | Revision figures + effect sizes |
 
 Authoritative manuscript numbers/figures:
 

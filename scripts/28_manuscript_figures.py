@@ -261,7 +261,8 @@ def fig03():
     ax.text(
         0.99,
         0.01,
-        f"{len(ids)} agents · {n_edges} neighbour links\nmarker size scales with neighbour count",
+        f"{len(ids)} agents · {n_edges} contextual relations\n"
+        "Spatial/statistical contextual relations — not communication links.",
         transform=ax.transAxes,
         ha="right",
         va="bottom",
@@ -290,7 +291,7 @@ def fig04():
     def arrow(y1, y2):
         ax.annotate("", xy=(5.0, y2), xytext=(5.0, y1), arrowprops=dict(arrowstyle="-|>", color="#374151", lw=1.6))
 
-    box(14.6, "40 campus sensor agents\nlocal CO$_2$, freshness, network, temporal & neighbour context", "#F3F4F6", C_FIXED, h=1.35, fs=9.5)
+    box(14.6, "40 campus sensor agents\nlocal CO$_2$, freshness, last-known network, temporal &\nneighboring-sensor context (relation graph, not links)", "#F3F4F6", C_FIXED, h=1.35, fs=9.5)
     arrow(14.6, 13.85)
     box(12.7, "Semantic expert demonstrations", "#DCFCE7", C_EXPERT, h=1.0)
     arrow(12.7, 11.95)
@@ -347,6 +348,7 @@ def fig05():
     ev_tx = int((tx & ev).sum())
     ev_n = int((ev & avail).sum())
     ax.legend(frameon=False, fontsize=8.2, loc="upper left", ncol=2, columnspacing=1.2)
+    ax.set_title("Illustrative validation window (not primary quantitative evidence)", fontsize=10)
     ax.text(
         0.985,
         0.94,

@@ -1,0 +1,7 @@
+Method,Configuration,n_runs,Transmission reduction (%),MAE (ppm),Precision,Recall,F1,AoI,Constraints satisfied
+BC initialization,interpolated_target=75.0%,1,75.00,7.967,0.9944,0.9976,N/A,1.700,True
+BC initialization,interpolated_target=78.0%,1,78.00,8.923,0.9772,0.9932,N/A,1.918,True
+BC initialization,interpolated_target=80.0%,1,80.00,9.255,0.9685,0.9927,N/A,2.155,False
+CAMPUS-SenseRL (KL-CMAPPO),interpolated_target=75.0%,1,75.00,7.936,0.9951,0.9979,N/A,1.719,True
+CAMPUS-SenseRL (KL-CMAPPO),interpolated_target=78.0%,1,78.00,8.787,0.9833,0.9939,N/A,1.947,True
+CAMPUS-SenseRL (KL-CMAPPO),interpolated_target=80.0%,1,80.00,9.174,0.9732,0.9931,N/A,2.176,False

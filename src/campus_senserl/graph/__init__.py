@@ -1,7 +1,9 @@
 """Campus sensor graph construction.
 
-Edges describe statistical/spatial relationships, NOT ventilation topology.
-Correlation edges are fit on TRAINING DATA ONLY.
+Edges are a server-derived spatial/statistical relation graph: contextual
+sensor relations for features/reconstruction. They are NOT LoRaWAN links,
+sensor-to-sensor packet exchange, ventilation/airflow topology, or a
+physical mesh network. Correlation edges are fit on TRAINING DATA ONLY.
 """
 
 from __future__ import annotations
