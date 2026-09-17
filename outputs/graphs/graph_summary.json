@@ -1,0 +1,8 @@
+{
+  "n_nodes": 299,
+  "spatial_edges": 1436,
+  "correlation_edges": 2118,
+  "hybrid_edges": 1319,
+  "note": "Edges are statistical/spatial relationships, not ventilation topology.",
+  "correlation_fit_split": "train"
+}
