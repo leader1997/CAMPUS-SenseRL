@@ -1,0 +1,98 @@
+{
+  "purpose": "Document construction of fig_revision_constraint_training.png from frozen KL-CMAPPO training logs.",
+  "no_training": true,
+  "no_evaluation_rerun": true,
+  "seeds": [
+    42,
+    123,
+    2024,
+    3407,
+    9999
+  ],
+  "source_logs": [
+    "results/rl_final/cmappo_kl/seed_42/metrics.json",
+    "results/rl_final/cmappo_kl/seed_123/metrics.json",
+    "results/rl_final/cmappo_kl/seed_2024/metrics.json",
+    "results/rl_final/cmappo_kl/seed_3407/metrics.json",
+    "results/rl_final/cmappo_kl/seed_9999/metrics.json"
+  ],
+  "row_filter": "Keep metrics.json entries that contain mean_mae, mean_miss, and mean_aoi. Exclude periodic validation rows (val_mae/val_recall).",
+  "logged_fields_used": [
+    "step",
+    "mean_mae",
+    "mean_miss",
+    "mean_aoi"
+  ],
+  "logged_fields_not_plotted_on_main_figure": [
+    "mean_tx",
+    "lam_e",
+    "lam_m",
+    "lam_a",
+    "kl_beta"
+  ],
+  "fields_never_invented": [
+    "policy_loss",
+    "entropy",
+    "gradient_norm",
+    "actual_kl_divergence"
+  ],
+  "normalization": {
+    "mae_ratio": "mean_mae / 9.0",
+    "miss_ratio": "mean_miss / 0.015",
+    "aoi_ratio": "mean_aoi / 3.5",
+    "interpretation": {
+      "<1": "rollout estimate below the predefined constraint limit",
+      "=1": "constraint boundary",
+      ">1": "rollout estimate exceeds the predefined limit"
+    },
+    "not_final_constraint_satisfaction": true
+  },
+  "aggregation": {
+    "independent_units": "five frozen training runs (seeds)",
+    "aligned_exactly": true,
+    "n_steps": 59,
+    "n_logged_steps_per_run": {
+      "42": 59,
+      "123": 59,
+      "2024": 59,
+      "3407": 59,
+      "9999": 59
+    },
+    "step_min": 1024,
+    "step_max": 60000,
+    "step_diffs_unique": [
+      608,
+      1024
+    ],
+    "final_interval_steps": 608,
+    "interpolation": "none; steps matched exactly across seeds",
+    "mean": "arithmetic mean across the five runs at each common step",
+    "sd": "sample standard deviation, ddof=1, across the five runs at each common step",
+    "do_not_treat_log_rows_as_independent_experiments": true
+  },
+  "event_miss": {
+    "n_logged_train_points": 295,
+    "n_nan": 0,
+    "n_inf": 0,
+    "n_zero": 84,
+    "zeros_per_seed": {
+      "42": 17,
+      "123": 14,
+      "2024": 19,
+      "3407": 20,
+      "9999": 14
+    },
+    "min": 0.0,
+    "max": 0.0068359375,
+    "handling": "No NaN/Inf event-miss values exist in the frozen logs. Zeros are kept as logged. They were not converted to NaN, zero-filled, or forward-filled at figure time. CMAPPOTrainer._step_costs already stores j_miss=0.0 when a step has no locally available true events (n_te==0), so logged zeros mix genuine zero-miss rollouts with no-event placeholders. Those two cases cannot be separated from metrics.json."
+  },
+  "smoothing": {
+    "applied": false,
+    "method": "none",
+    "reason": "Five-run mean curves are plotted from the logged values. Seed-to-seed SD is small; remaining variation is temporal structure of on-policy windows, not plotting noise.",
+    "plot_columns_equal_raw_normalized_columns": true
+  },
+  "trainer_event_miss_definition": "campus_senserl.rl.cmappo.CMAPPOTrainer._step_costs: j_miss = missed[local].sum() / n_te if n_te > 0 else 0.0, then mean_miss = mean(j_miss) over the rollout window.",
+  "scientific_caveat": "Training-rollout event-miss estimates stay below 0.015 in these logs, including zeros that may reflect no-event windows. This must not be read as frozen temporal TEST event-constraint satisfaction (0/5 on the frozen test).",
+  "reproduction_command": "python scripts/31_revision_constraint_training_figure.py"
+}
