@@ -3,5 +3,4 @@ fixed_60,Fixed-60,11.259079903147695,0.0,1,new_evaluation
 fixed_75,Fixed-75,11.501210653753024,0.0,1,new_evaluation
 delta_plus_heartbeat,Selected Delta+heartbeat,0.9685230024213176,0.0,1,new_evaluation
 semantic_expert,Semantic expert,0.1210653753026647,0.0,1,new_evaluation
-campus_senserl_bc,BC initialization (legacy),0.7021791767554353,0.0,1,legacy_frozen
-cmappo_kl,CAMPUS-SenseRL (KL-CMAPPO),0.5569007263922621,0.13803576575049512,5,new_evaluation
+cmappo_kl,CAMPUS-SenseRL (KL-CMAPPO),0.5569007263922621,0.13803576575048998,5,new_evaluation

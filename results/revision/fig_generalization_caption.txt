@@ -1,0 +1,1 @@
+Reconstruction MAE on the same chronological test interval for the development cohort (open circles) and the held-out cohort (filled markers). The dashed line is the 9 ppm MAE constraint. CAMPUS-SenseRL values are five-run means. Behaviour-cloning initialization is omitted because those rows have legacy provenance.

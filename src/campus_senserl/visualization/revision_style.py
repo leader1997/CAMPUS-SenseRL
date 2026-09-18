@@ -79,7 +79,9 @@ def method_zorder(method: str) -> int:
     return 3
 
 
-def save_revision_figure(fig: plt.Figure, path: Path, dpi: int = 600) -> None:
+def save_revision_figure(fig: plt.Figure, path: Path, dpi: int = 600, *, also_pdf: bool = False) -> None:
     ensure_dir(path.parent)
     fig.savefig(path, dpi=dpi, facecolor="white", edgecolor="white", bbox_inches="tight")
+    if also_pdf:
+        fig.savefig(path.with_suffix(".pdf"), facecolor="white", edgecolor="white", bbox_inches="tight")
     plt.close(fig)

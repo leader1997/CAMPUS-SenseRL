@@ -170,8 +170,8 @@ def fig01():
     bg = co2[~co2["deveui"].isin(tr_ids | ho_ids)]
     fig, ax = plt.subplots(figsize=(6.6, 5.6))
     ax.scatter(bg["longitude"], bg["latitude"], s=14, c=C_BG, alpha=0.75, label=f"Other CO$_2$ sensors (n={len(bg)})", zorder=1)
-    ax.scatter(tr["longitude"], tr["latitude"], s=52, c=C_DEV, edgecolors="white", linewidths=0.5, label=f"RL development agents (n={len(tr)})", zorder=3)
-    ax.scatter(ho["longitude"], ho["latitude"], s=58, c=C_HELD, marker="D", edgecolors="white", linewidths=0.5, label=f"Held-out transfer sensors (n={len(ho)})", zorder=4)
+    ax.scatter(tr["longitude"], tr["latitude"], s=52, c=C_DEV, edgecolors="white", linewidths=0.5, label=f"Development cohort (n={len(tr)})", zorder=3)
+    ax.scatter(ho["longitude"], ho["latitude"], s=58, c=C_HELD, marker="D", edgecolors="white", linewidths=0.5, label=f"Held-out cohort (n={len(ho)})", zorder=4)
     ax.set_xlabel("Longitude (°E)")
     ax.set_ylabel("Latitude (°N)")
     ax.set_aspect("equal", adjustable="box")

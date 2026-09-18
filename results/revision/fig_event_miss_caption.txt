@@ -1,0 +1,1 @@
+Union-event miss rate on the development-cohort validation split. Miss rate is 100×(1 − recall) for the union event (CO₂ ≥ 1000 ppm or rise ≥ 150 ppm). The dashed line is the 1.5% event-miss constraint. CAMPUS-SenseRL shows the five-run mean with sample-SD error bar (ddof = 1). Behaviour-cloning initialization is omitted from this main figure because of legacy provenance.

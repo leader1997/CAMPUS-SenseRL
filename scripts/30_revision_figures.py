@@ -205,13 +205,26 @@ def fig_tradeoff_mae(master: pd.DataFrame, summary: pd.DataFrame, figdir: Path, 
         )
 
     add_mean("semantic_expert", "Semantic expert", 90)
-    add_mean("campus_senserl_bc", "BC initialization (legacy)", 80)
     add_mean("cmappo_kl", "CAMPUS-SenseRL (KL-CMAPPO)", 120)
+    for method, dx, dy in [("fixed_60", 6, -11), ("fixed_75", -8, 9)]:
+        hit = per[per["method"] == method]
+        if hit.empty:
+            continue
+        r = hit.iloc[0]
+        ax.annotate(
+            DISPLAY_NAMES.get(method, method),
+            xy=(100 * r["transmission_reduction"], r["mae"]),
+            xytext=(dx, dy),
+            textcoords="offset points",
+            fontsize=8,
+            color="#4B5563",
+            ha="left" if dx > 0 else "right",
+        )
     ax.axhline(EPS_MAE, color=C_GRID, ls="--", lw=1.1, zorder=1)
     ax.text(
         0.98,
         EPS_MAE,
-        f"MAE ≤ {EPS_MAE:.0f} ppm",
+        f"MAE limit = {EPS_MAE:.0f} ppm",
         transform=ax.get_yaxis_transform(),
         color="#4B5563",
         fontsize=8,
@@ -220,10 +233,10 @@ def fig_tradeoff_mae(master: pd.DataFrame, summary: pd.DataFrame, figdir: Path, 
     )
     ax.set_xlabel("Transmission reduction (%)")
     ax.set_ylabel("MAE (ppm)")
-    ax.set_title("Who keeps low MAE at high communication savings?")
+    ax.set_title("Reconstruction error versus transmission reduction")
     ax.legend(frameon=False, fontsize=7.5, loc="upper left")
     ax.grid(True, alpha=0.18)
-    save_revision_figure(fig, figdir / "fig_revision_tradeoff_mae.png")
+    save_revision_figure(fig, figdir / "fig_revision_tradeoff_mae.png", also_pdf=True)
     dump_fig_csv("fig_revision_tradeoff_mae", pd.DataFrame(plotted), valuedir)
 
 
@@ -237,7 +250,6 @@ def fig_event_miss(master: pd.DataFrame, summary: pd.DataFrame, figdir: Path, va
         ("fixed_75", "Fixed-75"),
         ("delta_plus_heartbeat", "Selected Delta+heartbeat"),
         ("semantic_expert", "Semantic expert"),
-        ("campus_senserl_bc", "BC initialization (legacy)"),
         ("cmappo_kl", "CAMPUS-SenseRL (KL-CMAPPO)"),
     ]
     plotted = []
@@ -300,21 +312,25 @@ def fig_event_miss(master: pd.DataFrame, summary: pd.DataFrame, figdir: Path, va
     xerr = np.where(np.isfinite(xerr) & (xerr > 1e-12), xerr, np.nan)
     ax.barh(y, df["event_miss_pct"], color=colors, edgecolor="white", height=0.62, xerr=xerr, capsize=3, zorder=3, error_kw={"ecolor": "#374151", "lw": 0.9})
     ax.axvline(100 * EPS_MISS, color=C_GRID, ls="--", lw=1.2, zorder=2, label="1.5% event-miss constraint")
+    x_text = df["event_miss_pct"].to_numpy(dtype=float) + np.nan_to_num(xerr, nan=0.0) + 0.18
+    for yi, xv, pct in zip(y, x_text, df["event_miss_pct"]):
+        ax.text(xv, yi, f"{pct:.2f}%", va="center", ha="left", fontsize=8, color="#111827")
     ax.set_yticks(y)
     ax.set_yticklabels(df["label"])
     ax.invert_yaxis()
     ax.set_xlabel("Union event miss rate (%)  =  100×(1 − recall)")
-    ax.set_title("Who preserves high-CO₂ or rapid-rise events?  (lower is better)")
+    ax.set_xlim(0, max(float(np.nanmax(x_text)) + 1.2, 100 * EPS_MISS + 2.5))
+    ax.set_title("Union-event miss rate on the validation cohort")
     ax.legend(frameon=False, fontsize=8, loc="lower right")
     ax.grid(True, axis="x", alpha=0.18)
-    save_revision_figure(fig, figdir / "fig_revision_event_miss.png")
+    save_revision_figure(fig, figdir / "fig_revision_event_miss.png", also_pdf=True)
     dump_fig_csv("fig_revision_event_miss", df, valuedir)
 
 
 def fig_generalization_dumbbell(summary: pd.DataFrame, figdir: Path, valuedir: Path, sel_cfg: str) -> None:
     """MAE change: development TEST vs held-out TEST (same temporal window)."""
     apply_revision_style()
-    methods = ["fixed_60", "fixed_75", "delta_plus_heartbeat", "semantic_expert", "campus_senserl_bc", "cmappo_kl"]
+    methods = ["fixed_60", "fixed_75", "delta_plus_heartbeat", "semantic_expert", "cmappo_kl"]
     rows = []
     for method in methods:
         dev = summary[
@@ -350,22 +366,31 @@ def fig_generalization_dumbbell(summary: pd.DataFrame, figdir: Path, valuedir: P
         rec("fig_revision_generalization_dumbbell", f"{method}_dev_test", float(d["mae_mean"]))
         rec("fig_revision_generalization_dumbbell", f"{method}_heldout_test", float(h["mae_mean"]))
     df = pd.DataFrame(rows)
-    fig, ax = plt.subplots(figsize=(6.8, 4.4))
+    fig, ax = plt.subplots(figsize=(6.8, 4.6), layout="constrained")
     y = np.arange(len(df))
     for i, r in df.iterrows():
         c = method_color(r["method"])
         ax.plot([r["mae_dev_test"], r["mae_heldout_test"]], [i, i], color=c, lw=1.8, zorder=2)
         ax.scatter(r["mae_dev_test"], i, marker="o", s=42, c="white", edgecolors=c, linewidths=1.6, zorder=3, label="Development test" if i == 0 else None)
         ax.scatter(r["mae_heldout_test"], i, marker=method_marker(r["method"]), s=70, c=c, zorder=4, label="Held-out test" if i == 0 else None)
-    ax.axvline(EPS_MAE, color=C_GRID, ls="--", lw=1.1)
+    ax.axvline(EPS_MAE, color=C_GRID, ls="--", lw=1.1, zorder=1)
+    ax.text(
+        EPS_MAE + 0.12,
+        0.10,
+        "MAE limit = 9 ppm",
+        transform=ax.get_xaxis_transform(),
+        color="#4B5563",
+        fontsize=8,
+        ha="left",
+        va="bottom",
+    )
     ax.set_yticks(y)
     ax.set_yticklabels(df["label"])
     ax.set_xlabel("Reconstruction MAE (ppm)")
-    ax.set_title("Does MAE change on unseen sensors? (same test window)")
-    ax.legend(frameon=False, fontsize=8, loc="lower right")
+    ax.set_title("Same-window generalization to held-out sensing locations")
+    ax.legend(frameon=False, fontsize=8, loc="center", bbox_to_anchor=(0.52, 0.62))
     ax.grid(True, axis="x", alpha=0.18)
-    fig.tight_layout()
-    save_revision_figure(fig, figdir / "fig_revision_generalization_dumbbell.png")
+    save_revision_figure(fig, figdir / "fig_revision_generalization_dumbbell.png", also_pdf=True)
     dump_fig_csv("fig_revision_generalization_dumbbell", df, valuedir)
 
 
@@ -400,14 +425,14 @@ def fig_packet_loss_mae(summary: pd.DataFrame, figdir: Path, valuedir: Path) -> 
         for _, r in g.iterrows():
             rec("fig_revision_packet_loss_mae", f"{method}_pl{int(100*r['packet_loss'])}", float(r["mae_mean"]))
             plotted.append({"method": method, "packet_loss_pct": 100 * r["packet_loss"], "mae": r["mae_mean"], "mae_sd": r["mae_std"], "n_runs": int(r["n_runs"])})
-    ax.axhline(EPS_MAE, color=C_GRID, ls="--", lw=1.1)
+    ax.axhline(EPS_MAE, color=C_GRID, ls="--", lw=1.1, zorder=1, label="MAE limit = 9 ppm")
     ax.set_xlabel("Packet loss (%)")
     ax.set_ylabel("Reconstruction MAE (ppm)")
-    ax.set_title("How does reconstruction MAE degrade under packet loss?")
-    ax.legend(frameon=False, fontsize=8)
+    ax.set_title("Reconstruction robustness under packet loss")
+    ax.legend(frameon=False, fontsize=8, loc="upper left")
     ax.grid(True, alpha=0.18)
     fig.tight_layout()
-    save_revision_figure(fig, figdir / "fig_revision_packet_loss_mae.png")
+    save_revision_figure(fig, figdir / "fig_revision_packet_loss_mae.png", also_pdf=True)
     dump_fig_csv("fig_revision_packet_loss_mae", pd.DataFrame(plotted), valuedir)
 
 
