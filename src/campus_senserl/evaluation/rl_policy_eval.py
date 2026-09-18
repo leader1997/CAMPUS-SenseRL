@@ -109,8 +109,17 @@ def load_mappo_policy(
 ) -> Callable:
     """Load shared/residual MAPPO actor.
 
-    ``prob_threshold`` controls deterministic TX: transmit iff σ(logit) > τ.
-    Sweeping τ yields matched communication-budget comparisons.
+    Frozen KL-CMAPPO checkpoints use ``actor_type='residual_heuristic'``.
+    Action selection is:
+
+        p = σ( f_θ(obs) + α · heuristic_logits_torch(obs) )
+        TRANSMIT iff p > τ
+
+    That is a *fixed expert-derived residual prior* inside the actor.
+    ``SemanticExpertPolicy`` is not instantiated and not called.
+
+    ``prob_threshold`` (τ) controls deterministic TX. Sweeping τ on VAL
+    yields matched communication-budget comparisons.
     """
     ckpt = torch.load(checkpoint, map_location=device, weights_only=False)
     obs_dim = int(ckpt.get("obs_dim", ckpt["actor"]["net.0.weight"].shape[1]))
@@ -162,8 +171,8 @@ def evaluate_policy(
     n_true = 0
     n_server = 0
     # Category counters
-    tp_high = fn_high = n_high = 0
-    tp_rapid = fn_rapid = n_rapid = 0
+    tp_high = fn_high = fp_high = n_high = 0
+    tp_rapid = fn_rapid = fp_rapid = n_rapid = 0
     aoi_state_all: list[float] = []
     aoi_raw_all: list[float] = []
     tx = 0
@@ -222,11 +231,15 @@ def evaluate_policy(
                 n_high += int(th.sum())
                 tp_high += int((np.asarray(info["tp_high_co2"], dtype=bool) & local).sum())
                 fn_high += int((np.asarray(info["fn_high_co2"], dtype=bool) & local).sum())
+                if "fp_high_co2" in info:
+                    fp_high += int((np.asarray(info["fp_high_co2"], dtype=bool) & local).sum())
             if "true_rapid_rise" in info:
                 tr = np.asarray(info["true_rapid_rise"], dtype=bool) & local
                 n_rapid += int(tr.sum())
                 tp_rapid += int((np.asarray(info["tp_rapid_rise"], dtype=bool) & local).sum())
                 fn_rapid += int((np.asarray(info["fn_rapid_rise"], dtype=bool) & local).sum())
+                if "fp_rapid_rise" in info:
+                    fp_rapid += int((np.asarray(info["fp_rapid_rise"], dtype=bool) & local).sum())
 
         tx_requested += int(info.get("tx_requested", info.get("tx_requested_after_shield", 0)))
         tx_delivered += int(info.get("transmit_count", 0))
@@ -254,6 +267,22 @@ def evaluate_policy(
             return float("nan")
         return float(tpp / (tpp + fnn)) if (tpp + fnn) else float("nan")
 
+    def _prf(tpp, fpp):
+        if (tpp + fpp) <= 0:
+            return float("nan")
+        return float(tpp / (tpp + fpp))
+
+    def _f1(prec, rec):
+        if not (np.isfinite(prec) and np.isfinite(rec) and (prec + rec) > 0):
+            return float("nan")
+        return float(2 * prec * rec / (prec + rec))
+
+    high_rec = _rec(tp_high, fn_high, n_high)
+    high_prec = _prf(tp_high, fp_high)
+    rapid_rec = _rec(tp_rapid, fn_rapid, n_rapid)
+    rapid_prec = _prf(tp_rapid, fp_rapid)
+    delivery_over_avail = (tx_delivered / avail_n) if avail_n else 0.0
+
     # Prefer raw AoI for paper metrics
     aoi_report = aoi_raw_all if aoi_raw_all else aoi_state_all
 
@@ -262,6 +291,11 @@ def evaluate_policy(
         "n_sensors": env.n_sensors,
         "n_locally_available": avail_n,
         "n_tx": tx,
+        "n_tx_attempts": tx,
+        "n_delivered": int(tx_delivered),
+        "attempt_rate": float(tx_rate),
+        "delivery_rate": float(delivery_over_avail),
+        "attempt_based_reduction": float(1.0 - tx_rate),
         "transmit_rate": float(tx_rate),
         "transmission_reduction_pct": float(reduction),
         "mae_skipped": float(mae_metric(np.asarray(y_true_skip), np.asarray(y_pred_skip))) if y_true_skip else float("nan"),
@@ -271,13 +305,22 @@ def evaluate_policy(
         "event_recall": float(recall) if n_true else float("nan"),
         "event_precision": float(precision) if (tp + fp) else float("nan"),
         "event_f1": float(f1),
+        "event_recall_union": float(recall) if n_true else float("nan"),
+        "event_precision_union": float(precision) if (tp + fp) else float("nan"),
+        "event_f1_union": float(f1),
         "tp": tp,
         "fn": fn,
         "fp": fp,
         "n_high_co2_events": n_high,
-        "recall_high_co2": _rec(tp_high, fn_high, n_high),
+        "high_co2_recall": high_rec,
+        "high_co2_precision": high_prec,
+        "high_co2_f1": _f1(high_prec, high_rec),
+        "recall_high_co2": high_rec,
         "n_rapid_rise_events": n_rapid,
-        "recall_rapid_rise": _rec(tp_rapid, fn_rapid, n_rapid),
+        "rapid_rise_recall": rapid_rec,
+        "rapid_rise_precision": rapid_prec,
+        "rapid_rise_f1": _f1(rapid_prec, rapid_rec),
+        "recall_rapid_rise": rapid_rec,
         "mean_aoi": float(np.mean(aoi_report)) if aoi_report else float("nan"),
         "mean_aoi_state": float(np.mean(aoi_state_all)) if aoi_state_all else float("nan"),
         "mean_aoi_raw": float(np.mean(aoi_raw_all)) if aoi_raw_all else float("nan"),

@@ -13,7 +13,7 @@
   "packet_loss_mask_seed": 20260317,
   "n_loss_masks": 5,
   "training_performed": false,
-  "n_master_rows": 291,
+  "n_master_rows": 275,
   "tau_grid": [
     0.35,
     0.4,

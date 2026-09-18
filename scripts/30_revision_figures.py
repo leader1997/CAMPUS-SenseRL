@@ -24,8 +24,10 @@ from campus_senserl.evaluation.revision_checks import validate_figure_values, va
 from campus_senserl.evaluation.revision_export import (
     selected_delta_cfg,
     write_claim_audit,
+    write_final_reproducibility_check,
     write_paper_ready_summary,
     write_protocol_json,
+    write_reproducibility_manifest,
     write_tables,
 )
 from campus_senserl.evaluation.revision_metrics import (
@@ -226,77 +228,87 @@ def fig_tradeoff_mae(master: pd.DataFrame, summary: pd.DataFrame, figdir: Path, 
 
 
 def fig_event_miss(master: pd.DataFrame, summary: pd.DataFrame, figdir: Path, valuedir: Path, sel_cfg: str) -> None:
-    """Who preserves events? Miss rate in percent, line at 1.5%."""
+    """Union event-miss rate as a horizontal bar chart (lower is better)."""
     apply_revision_style()
     val = val_zero_loss(master)
     vs = val_summary(summary)
-    fig, ax = plt.subplots(figsize=(6.8, 4.7), layout="constrained")
+    order = [
+        ("fixed_60", "Fixed-60"),
+        ("fixed_75", "Fixed-75"),
+        ("delta_plus_heartbeat", "Selected Delta+heartbeat"),
+        ("semantic_expert", "Semantic expert"),
+        ("campus_senserl_bc", "BC initialization (legacy)"),
+        ("cmappo_kl", "CAMPUS-SenseRL (KL-CMAPPO)"),
+    ]
     plotted = []
-    per = val[val["method"].str.startswith("fixed_")].sort_values("transmission_reduction")
-    ax.plot(
-        100 * per["transmission_reduction"],
-        100 * (1.0 - per["recall"]),
-        "s-",
-        color=C_PERIODIC,
-        lw=1.5,
-        ms=7,
-        label="Periodic (Fixed-15…90)",
-        zorder=3,
-    )
-    dlt = val[val["method"] == "delta_plus_heartbeat"].copy()
-    dlt["pareto"] = pareto_mask(dlt)
-    ax.scatter(100 * dlt["transmission_reduction"], 100 * (1.0 - dlt["recall"]), s=26, c=C_DELTA, alpha=0.28, marker="P", label="Delta+heartbeat grid", zorder=2)
-    p = dlt[dlt["pareto"]]
-    ax.scatter(100 * p["transmission_reduction"], 100 * (1.0 - p["recall"]), s=64, facecolors="none", edgecolors=C_PARETO, linewidths=1.4, marker="P", label="Delta+heartbeat Pareto", zorder=4)
-    sel = dlt[dlt["configuration"] == sel_cfg]
-    if len(sel):
-        r = sel.iloc[0]
-        ax.scatter(100 * r["transmission_reduction"], miss_pct(r["recall"]), marker="P", s=110, c=C_DELTA, edgecolors="black", linewidths=0.6, zorder=6, label="Selected Delta+heartbeat")
-        rec("fig_revision_event_miss", "delta_selected", miss_pct(r["recall"]))
-
-    def add_mean(method: str, label: str):
+    for method, label in order:
         hit = vs[vs["method"] == method]
         if method == "delta_plus_heartbeat":
-            return
+            raw = val[(val["method"] == method) & (val["configuration"] == sel_cfg)]
+            if raw.empty:
+                continue
+            r = raw.iloc[0]
+            plotted.append(
+                {
+                    "method": method,
+                    "label": label,
+                    "event_miss_pct": miss_pct(r["recall"]),
+                    "event_miss_sd": 0.0,
+                    "n_runs": 1,
+                    "result_source": r.get("result_source", "new_evaluation"),
+                }
+            )
+            rec("fig_revision_event_miss", method, miss_pct(r["recall"]), sel_cfg)
+            continue
         if hit.empty:
             raw = val[val["method"] == method]
             if raw.empty:
-                return
+                continue
             r = raw.iloc[0]
-            ax.scatter(100 * r["transmission_reduction"], miss_pct(r["recall"]), marker=method_marker(method), s=90, c=method_color(method), zorder=6, label=label)
+            plotted.append(
+                {
+                    "method": method,
+                    "label": label,
+                    "event_miss_pct": miss_pct(r["recall"]),
+                    "event_miss_sd": 0.0,
+                    "n_runs": 1,
+                    "result_source": r.get("result_source", ""),
+                }
+            )
             rec("fig_revision_event_miss", method, miss_pct(r["recall"]))
-            plotted.append({"method": method, "tx_reduction_pct": 100 * r["transmission_reduction"], "event_miss_pct": miss_pct(r["recall"])})
-            return
+            continue
         r = hit.iloc[0]
         y = miss_pct(r["recall_mean"])
-        yerr = 100 * float(r["recall_std"]) if r["n_runs"] > 1 else None
-        ax.errorbar(
-            100 * r["transmission_reduction_mean"],
-            y,
-            yerr=yerr,
-            fmt=method_marker(method),
-            color=method_color(method),
-            ms=11 if method == "cmappo_kl" else 9,
-            capsize=3,
-            zorder=7 if method == "cmappo_kl" else 5,
-            label=label,
+        ysd = 100.0 * float(r["recall_std"]) if int(r["n_runs"]) > 1 else 0.0
+        plotted.append(
+            {
+                "method": method,
+                "label": label,
+                "event_miss_pct": y,
+                "event_miss_sd": ysd,
+                "n_runs": int(r["n_runs"]),
+                "result_source": r.get("result_source", ""),
+            }
         )
         rec("fig_revision_event_miss", method, y, f"n={int(r['n_runs'])}")
-        plotted.append({"method": method, "tx_reduction_pct": 100 * r["transmission_reduction_mean"], "event_miss_pct": y, "n_runs": int(r["n_runs"])})
 
-    add_mean("semantic_expert", "Semantic expert")
-    add_mean("campus_senserl_bc", "BC initialization (legacy)")
-    add_mean("cmappo_kl", "CAMPUS-SenseRL (KL-CMAPPO)")
-    ax.axhline(100 * EPS_MISS, color=C_GRID, ls="--", lw=1.1, zorder=1)
-    ax.text(2, 100 * EPS_MISS + 0.12, "miss ≤ 1.5%", color="#4B5563", fontsize=8)
-    ax.set_xlabel("Transmission reduction (%)")
-    ax.set_ylabel("Event miss rate (%)")
-    ax.set_title("Who preserves high-CO2 or rapid-rise events?")
-    ax.set_ylim(-0.2, max(8.0, ax.get_ylim()[1]))
-    ax.legend(frameon=False, fontsize=7.5, loc="upper left")
-    ax.grid(True, alpha=0.18)
+    df = pd.DataFrame(plotted)
+    fig, ax = plt.subplots(figsize=(6.8, 4.4), layout="constrained")
+    y = np.arange(len(df))
+    colors = [method_color(m) for m in df["method"]]
+    xerr = df["event_miss_sd"].to_numpy(dtype=float)
+    xerr = np.where(np.isfinite(xerr) & (xerr > 1e-12), xerr, np.nan)
+    ax.barh(y, df["event_miss_pct"], color=colors, edgecolor="white", height=0.62, xerr=xerr, capsize=3, zorder=3, error_kw={"ecolor": "#374151", "lw": 0.9})
+    ax.axvline(100 * EPS_MISS, color=C_GRID, ls="--", lw=1.2, zorder=2, label="1.5% event-miss constraint")
+    ax.set_yticks(y)
+    ax.set_yticklabels(df["label"])
+    ax.invert_yaxis()
+    ax.set_xlabel("Union event miss rate (%)  =  100×(1 − recall)")
+    ax.set_title("Who preserves high-CO₂ or rapid-rise events?  (lower is better)")
+    ax.legend(frameon=False, fontsize=8, loc="lower right")
+    ax.grid(True, axis="x", alpha=0.18)
     save_revision_figure(fig, figdir / "fig_revision_event_miss.png")
-    dump_fig_csv("fig_revision_event_miss", pd.DataFrame(plotted), valuedir)
+    dump_fig_csv("fig_revision_event_miss", df, valuedir)
 
 
 def fig_generalization_dumbbell(summary: pd.DataFrame, figdir: Path, valuedir: Path, sel_cfg: str) -> None:
@@ -476,13 +488,14 @@ def fig_contextual_relations(root: Path, figdir: Path, valuedir: Path) -> None:
     ax.set_xlabel("Longitude (°E)")
     ax.set_ylabel("Latitude (°N)")
     ax.set_aspect("equal", adjustable="box")
+    ax.plot([], [], color="#4B5563", lw=1.4, alpha=0.45, label="contextual relation — not communication link")
     ax.legend(frameon=False, fontsize=8, loc="upper left")
     ax.text(
         0.99,
         0.01,
-        f"{len(ids)} agents · {n_edges} contextual relations\n"
-        "Edges are spatial/statistical contextual relations used by the GNN,\n"
-        "not radio or communication links.",
+        f"{len(ids)} logical per-sensor decision agents · {n_edges} contextual relations\n"
+        "Faint edges: contextual relation — not communication link.\n"
+        "Neighbour features use server-available monitoring states only.",
         transform=ax.transAxes,
         ha="right",
         va="bottom",
@@ -648,6 +661,8 @@ def main() -> None:
     checks = json.loads((out / "checks.json").read_text(encoding="utf-8")) if (out / "checks.json").exists() else {}
     write_claim_audit(summary, out)
     write_paper_ready_summary(summary, out, checks)
+    write_final_reproducibility_check(out)
+    write_reproducibility_manifest(out)
     print(f"[done] figures in {figdir} (fig_revision_*); values in {valuedir}")
 
 

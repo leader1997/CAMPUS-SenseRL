@@ -136,9 +136,11 @@ class DeltaPlusHeartbeatPolicy:
 
 
 def heuristic_logits_torch(obs: torch.Tensor, *, max_aoi: float = 8.0) -> torch.Tensor:
-    """Differentiable soft expert score → logit bias favoring informative TX.
+    """Differentiable expert-informed residual component (not SemanticExpertPolicy).
 
-    obs: (..., 14) normalized features matching env schema.
+    Soft scores over ΔCO2, AoI, CO2 level, local-vs-server disagreement, and
+    uncertainty. Evaluated inside ResidualSharedActor; no separate expert object
+    is required at deployment. obs: (..., 14) normalized features.
     """
     local = obs[..., 0] * 1500.0
     delta = (obs[..., 2] * 1500.0).abs()

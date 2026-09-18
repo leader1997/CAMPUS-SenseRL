@@ -1,0 +1,77 @@
+{
+  "training_performed": false,
+  "frozen": [
+    "methodology",
+    "train/val/test splits",
+    "development and held-out cohorts",
+    "KL-CMAPPO checkpoints",
+    "Delta+heartbeat VAL selection (delta_ppm=25, heartbeat=3)"
+  ],
+  "transmission": {
+    "denominator": "N_locally_available",
+    "numerator": "N_tx_attempts",
+    "formula": "transmission_reduction = 1 - N_tx_attempts / N_locally_available",
+    "natural_missingness": "excluded from the denominator; never locally available",
+    "packet_loss_cost": "counted on TX attempts, not deliveries"
+  },
+  "periodic_fixed_k": {
+    "clock": "env step / 15-min grid",
+    "rule": "TRANSMIT iff t % k == 0, then SKIP if not local_available",
+    "missingness": "does not shift later TX times; the counter still advances",
+    "not": "every nth valid observation"
+  },
+  "primary_event": {
+    "definition": "combined OR: y >= 1000 ppm OR rise >= 150 ppm vs previous finite GT",
+    "server_state": "same rule on reconstructed monitoring value (TX ground truth or recon/LOCF)",
+    "skip_semantics": "SKIP is not an automatic FN; skip + correct reconstruction can be TP",
+    "high_co2_and_rapid_rise": "logged separately as secondary; revision tables report the combined event"
+  },
+  "packet_loss": {
+    "mode": "independent_slots",
+    "mask": "shared (t, sensor) Bernoulli mask, identical across methods for a given loss_mask_id",
+    "n_replicates": 5,
+    "base_seed": 20260317,
+    "mask_seed": "PACKET_LOSS_MASK_SEED + loss_mask_id",
+    "hierarchy": {
+      "columns": [
+        "policy_run",
+        "loss_mask_id"
+      ],
+      "deterministic": "mean and sample SD across shared loss-mask replicates",
+      "kl_cmappo": "mean over masks within each frozen policy, then sample SD across the 5 policies",
+      "not": "25 policy\u00d7mask rows are not 25 i.i.d. trained models"
+    },
+    "bc": "legacy per-attempt packet-loss rows are not used in the new shared-mask figure"
+  },
+  "delta_selection": {
+    "split": "VAL only",
+    "grid": "delta in {25,50,75,100} ppm \u00d7 heartbeat in {3,4,5,6}",
+    "feasible": "MAE<=9 and miss rate<=0.015 and AoI<=3.5",
+    "if_none_feasible": "Pareto set \u2192 min violation_score \u2192 max TX reduction",
+    "violation_score": "max(0, MAE/9-1) + max(0, miss/0.015-1) + max(0, AoI/3.5-1)",
+    "frozen_selection": "delta_ppm=25,heartbeat=3",
+    "reselection": false
+  },
+  "constraints": {
+    "mae_ppm": 9.0,
+    "event_miss_rate": 0.015,
+    "recall_min": 0.985,
+    "aoi_raw": 3.5,
+    "aggregation": "k/n pass counts; False if any contributing replicate fails",
+    "fixed_15": "N/A (full-transmission reference)",
+    "do_not_judge_feasibility_from_mean_alone": true
+  },
+  "matched_budget": {
+    "targets": [
+      0.75,
+      0.78,
+      0.8
+    ],
+    "kl": "direct VAL tau sweep on frozen actors; report the measured tau nearest each target",
+    "bc": "interpolated estimate from legacy frozen summary only; not primary"
+  },
+  "generalization_figure": {
+    "comparison": "development cohort TEST vs held-out cohort TEST (same temporal test window)",
+    "not": "VAL vs held-out TEST (would confound sensors with time)"
+  }
+}

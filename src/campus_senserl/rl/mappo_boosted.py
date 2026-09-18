@@ -27,7 +27,21 @@ from campus_senserl.utils import ensure_dir, load_yaml, repo_root, save_json, se
 
 
 class ResidualSharedActor(nn.Module):
-    """π(a|s) with residual expert bias: logit = f_θ(s) + α · h(s)."""
+    """Shared actor with a *fixed expert-derived residual prior*.
+
+    Deployment forward pass (unchanged from training):
+
+        logit = f_θ(observation) + residual_scale * heuristic_logits_torch(observation)
+
+    ``heuristic_logits_torch`` is a differentiable soft score over the same
+    observation features used by the semantic expert (ΔCO2, AoI, CO2 level,
+    local-vs-server disagreement, uncertainty). It is **not** a call to
+    ``SemanticExpertPolicy``; no separate expert object is required at
+    inference. The residual is still evaluated on every forward pass.
+
+    During KL-CMAPPO, ``residual_scale`` is frozen
+    (``configs/rl_cmappo.yaml: freeze_residual_scale: true``).
+    """
 
     def __init__(self, obs_dim: int, hidden: int = 128, residual_init: float = 1.0) -> None:
         super().__init__()
@@ -38,12 +52,13 @@ class ResidualSharedActor(nn.Module):
             nn.SiLU(),
             nn.Linear(hidden, 1),
         )
-        # Start near expert; α is learnable so RL can reduce reliance
+        # Frozen during KL-CMAPPO (freeze_residual_scale). Still used at inference.
         self.residual_scale = nn.Parameter(torch.tensor(float(residual_init)))
         # Slight TX-favoring bias so Bernoulli does not start at p≈0.5 collapse to 0
         nn.init.constant_(self.net[-1].bias, 0.25)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # Expert-informed residual component: evaluated inside the actor, not as an external policy.
         neural = self.net(x).squeeze(-1)
         return neural + self.residual_scale * heuristic_logits_torch(x)
 

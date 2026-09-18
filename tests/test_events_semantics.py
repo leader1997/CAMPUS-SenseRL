@@ -149,3 +149,76 @@ def test_classify_false_server_event_is_fp():
     )
     assert not out["true"][0] and out["server"][0] and out["fp"][0]
     assert not out["tp"][0] and not out["fn"][0]
+
+
+def test_union_event_is_high_co2_or_rapid_rise():
+    det = EventDetector(primary_threshold_ppm=1000, rapid_increase_ppm=150)
+    # high CO2 only
+    high = det.detect_step_categories(np.array([1100.0]), np.array([1050.0]))
+    assert high["high_co2"][0] and not high["rapid_rise"][0] and high["any"][0]
+    # rapid rise only (still below 1000)
+    rise = det.detect_step_categories(np.array([600.0]), np.array([400.0]))
+    assert not rise["high_co2"][0] and rise["rapid_rise"][0] and rise["any"][0]
+    # union: high from one category, rise from another
+    both = det.detect_step_categories(np.array([1200.0, 600.0]), np.array([400.0, 400.0]))
+    assert both["any"].tolist() == [True, True]
+    assert both["high_co2"].tolist() == [True, False]
+    assert both["rapid_rise"].tolist() == [True, True]
+
+
+def test_transmitted_high_co2_is_union_tp():
+    det = EventDetector(primary_threshold_ppm=1000, rapid_increase_ppm=150)
+    out = det.classify_detection(
+        true_values=np.array([1200.0]),
+        server_values=np.array([1200.0]),
+        prev_true=np.array([400.0]),
+        prev_server=np.array([400.0]),
+    )
+    assert out["tp"][0] and out["tp_high_co2"][0]
+
+
+def test_skipped_reconstructed_high_co2_is_union_tp():
+    det = EventDetector(primary_threshold_ppm=1000, rapid_increase_ppm=150)
+    out = det.classify_detection(
+        true_values=np.array([1200.0]),
+        server_values=np.array([1150.0]),  # reconstructed, not transmitted
+        prev_true=np.array([400.0]),
+        prev_server=np.array([400.0]),
+    )
+    assert out["true"][0] and out["server"][0] and out["tp"][0]
+    assert not out["fn"][0]
+
+
+def test_skipped_missed_high_co2_is_union_fn():
+    det = EventDetector(primary_threshold_ppm=1000, rapid_increase_ppm=150)
+    out = det.classify_detection(
+        true_values=np.array([1200.0]),
+        server_values=np.array([400.0]),
+        prev_true=np.array([400.0]),
+        prev_server=np.array([400.0]),
+    )
+    assert out["fn"][0] and not out["tp"][0]
+
+
+def test_false_reconstructed_event_is_union_fp():
+    det = EventDetector(primary_threshold_ppm=1000, rapid_increase_ppm=150)
+    out = det.classify_detection(
+        true_values=np.array([400.0]),
+        server_values=np.array([1200.0]),
+        prev_true=np.array([400.0]),
+        prev_server=np.array([400.0]),
+    )
+    assert out["fp"][0] and out["fp_high_co2"][0]
+
+
+def test_rapid_rise_event_and_union():
+    det = EventDetector(primary_threshold_ppm=1000, rapid_increase_ppm=150)
+    out = det.classify_detection(
+        true_values=np.array([550.0]),
+        server_values=np.array([560.0]),
+        prev_true=np.array([400.0]),
+        prev_server=np.array([400.0]),
+    )
+    assert out["true_rapid_rise"][0] and out["tp_rapid_rise"][0]
+    assert out["true"][0] and out["tp"][0]
+    assert not out["true_high_co2"][0]

@@ -1,0 +1,7 @@
+method,display_name,target_reduction,selected_probability_threshold,achieved_reduction,mae,recall,precision,f1,aoi,n_runs,source,result_source,evaluation_type,primary_evidence,configuration
+campus_senserl_bc,BC initialization,0.75,N/A,0.75,7.967005896143648,0.9975731144651776,0.9943902547280532,,1.7003882416075846,1,legacy_frozen_summary,interpolated_legacy,interpolated,False,interpolated_target=75.0%
+campus_senserl_bc,BC initialization,0.78,N/A,0.78,8.923299430437106,0.9932065187162592,0.9772144929373888,,1.91769511818242,1,legacy_frozen_summary,interpolated_legacy,interpolated,False,interpolated_target=78.0%
+campus_senserl_bc,BC initialization,0.8,N/A,0.8,9.254888475769937,0.9927110031177608,0.9684580211701737,,2.1553599396977026,1,legacy_frozen_summary,interpolated_legacy,interpolated,False,interpolated_target=80.0%
+cmappo_kl,CAMPUS-SenseRL (KL-CMAPPO),0.75,0.4,0.7552750042308343,8.070008568801864,0.9980629539951573,0.9939724127888627,0.9960132516561482,1.7523814336806098,5,revision_eval,direct_measured,direct,True,tau=0.40 (nearest to 75%)
+cmappo_kl,CAMPUS-SenseRL (KL-CMAPPO),0.78,0.5,0.7779019897009405,8.742403611902981,0.9944309927360774,0.9849194370427231,0.9896465943715731,1.927891463225004,5,revision_eval,direct_measured,direct,True,tau=0.50 (nearest to 78%)
+cmappo_kl,CAMPUS-SenseRL (KL-CMAPPO),0.8,0.6,0.8006614607257694,9.200637985891786,0.9929782082324456,0.9732181196214865,0.9829902658993979,2.184734877935002,5,revision_eval,direct_measured,direct,True,tau=0.60 (nearest to 80%)

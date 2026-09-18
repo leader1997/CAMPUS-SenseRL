@@ -1,0 +1,33 @@
+{
+  "headline_event": "union",
+  "headline_alias": "event_recall is event_recall_union",
+  "training_and_evaluation_identical": true,
+  "formulas": {
+    "high_co2": "x_t >= 1000 ppm (finite x_t)",
+    "rapid_rise": "(x_t - x_{t-1}) >= 150 ppm (both finite)",
+    "union": "event_t = high_co2 OR rapid_rise"
+  },
+  "thresholds": {
+    "primary_threshold_ppm": 1000.0,
+    "rapid_increase_ppm": 150.0
+  },
+  "server_state": "The same rule is applied to the server monitoring value (delivered ground truth on successful TX, otherwise reconstruction/LOCF). SKIP is not an automatic FN: a skipped observation reconstructed as an event can be TP.",
+  "code": {
+    "detector": "campus_senserl.environment.event_detector.EventDetector.detect_step / classify_detection",
+    "training_constraint": "campus_senserl.rl.cmappo.CMAPPOTrainer._step_costs j_miss from info['missed_events'] (union FN)",
+    "paper_eval": "campus_senserl.evaluation.rl_policy_eval.evaluate_policy event_recall == event_recall_union",
+    "revision_tables": "results/revision/*.csv column recall = union event recall"
+  },
+  "secondary_metrics": [
+    "event_recall_union",
+    "event_precision_union",
+    "event_f1_union",
+    "high_co2_recall",
+    "high_co2_precision",
+    "high_co2_f1",
+    "rapid_rise_recall",
+    "rapid_rise_precision",
+    "rapid_rise_f1"
+  ],
+  "do_not_change": "Original validated implementation uses the union; revision did not alter it."
+}

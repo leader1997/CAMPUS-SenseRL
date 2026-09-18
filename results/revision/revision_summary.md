@@ -48,12 +48,14 @@ The generalization figure compares **development TEST vs held-out TEST**, not VA
 - Beating the semantic expert on MAE (expert MAE is lower on VAL, test, and held-out).
 - Always transmitting less than BC (at tau=0.5, KL TX reduction is lower than BC; BC VAL/test rows may be legacy_frozen).
 - Test-set constraint feasibility.
-- Interpolated matched-budget numbers as if they were direct KL rollouts. Only the VAL tau-sweep rows labelled `direct_measured` are primary; BC remains `interpolated_legacy`.
+- Interpolated matched-budget numbers as if they were direct KL rollouts. Only the VAL tau-sweep rows labelled `direct_measured` are primary; BC remains `interpolated_legacy`. Do not present mixed KL-direct / BC-interpolated matched-budget as primary evidence.
+- That the deployed KL actor is a pure neural policy with no expert-derived logic. `SemanticExpertPolicy` is not called, but a frozen expert-informed residual component is still evaluated inside `ResidualSharedActor`.
+- That the relation graph is a wireless mesh or that sensors exchange packets with neighbours.
 
 ## Figures
 
-- `fig_revision_tradeoff_mae.png` — who keeps low MAE at high TX reduction?
-- `fig_revision_event_miss.png` — who preserves events (miss rate %, 1.5% line)?
+- `fig_revision_tradeoff_mae.png` — communication reduction vs reconstruction MAE.
+- `fig_revision_event_miss.png` — horizontal bars of union event-miss rate (%); 1.5% line.
 - `fig_revision_generalization_dumbbell.png` — MAE, development TEST vs unseen TEST.
 - `fig_revision_packet_loss_mae.png` / `fig_revision_packet_loss_event_miss.png` — shared-mask replicates; BC omitted.
 - `fig_revision_contextual_relations.png` — spatial/statistical relations, **not** communication links.

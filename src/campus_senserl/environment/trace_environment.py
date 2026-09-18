@@ -448,7 +448,11 @@ class TraceDrivenCampusEnv(gym.Env):
         return self.locf.predict(self.server_state, self.time_feats[self._t], self.adjacency)
 
     def _neighbor_summary(self, recon: np.ndarray) -> np.ndarray:
-        """Mean reconstructed neighbouring-sensor context (relation graph, not links)."""
+        """Mean *server-available* neighbouring context (relation graph, not radio links).
+
+        Uses reconstructed / last-delivered monitoring values only. Current
+        hidden ground truth of a skipped neighbor is not an input.
+        """
         out = np.zeros(self.n_sensors, dtype=np.float32)
         for i in range(self.n_sensors):
             neigh = np.where(self.adjacency[i] > 0)[0]
@@ -459,23 +463,6 @@ class TraceDrivenCampusEnv(gym.Env):
             vals = vals[np.isfinite(vals)]
             if len(vals):
                 out[i] = float(np.mean(vals))
-        return out
-
-    def _neighbor_disagreement(self, local_co2: np.ndarray, recon: np.ndarray) -> np.ndarray:
-        out = np.zeros(self.n_sensors, dtype=np.float32)
-        for i in range(self.n_sensors):
-            neigh = np.where(self.adjacency[i] > 0)[0]
-            neigh = neigh[neigh != i]
-            if len(neigh) == 0:
-                continue
-            vals = []
-            for j in neigh:
-                if np.isfinite(local_co2[j]):
-                    vals.append(local_co2[j])
-                elif np.isfinite(recon[j]):
-                    vals.append(recon[j])
-            if vals and np.isfinite(local_co2[i]):
-                out[i] = abs(local_co2[i] - float(np.mean(vals)))
         return out
 
     def _effective_local_available(self, t: int | None = None) -> np.ndarray:
@@ -691,8 +678,10 @@ class TraceDrivenCampusEnv(gym.Env):
             "true_rapid_rise": det["true_rapid_rise"].copy(),
             "tp_high_co2": det["tp_high_co2"].copy(),
             "fn_high_co2": det["fn_high_co2"].copy(),
+            "fp_high_co2": det["fp_high_co2"].copy(),
             "tp_rapid_rise": det["tp_rapid_rise"].copy(),
             "fn_rapid_rise": det["fn_rapid_rise"].copy(),
+            "fp_rapid_rise": det["fp_rapid_rise"].copy(),
             "rl_skipped": self.rl_skipped[t].copy(),
             "natural_missing": self.natural_missing[t].copy(),
             "final_actions": final_actions.copy(),

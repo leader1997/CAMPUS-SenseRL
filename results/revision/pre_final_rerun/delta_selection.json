@@ -1,0 +1,30 @@
+{
+  "criterion": "Among VAL Delta+heartbeat grid points: (1) if any configuration satisfies MAE<=9, recall>=0.985, AoI<=3.5, choose the feasible point with highest transmission reduction (ties: lower MAE, then higher recall). (2) else choose the Pareto point with smallest constraint-violation score, then highest transmission reduction.",
+  "reason": "no VAL config met all constraints; selected min violation on Pareto set",
+  "selected_configuration": "delta_ppm=25,heartbeat=3",
+  "n_grid": 16,
+  "n_feasible": 0,
+  "n_pareto": 8,
+  "pareto_configurations": [
+    "delta_ppm=25,heartbeat=3",
+    "delta_ppm=25,heartbeat=4",
+    "delta_ppm=25,heartbeat=5",
+    "delta_ppm=25,heartbeat=6",
+    "delta_ppm=50,heartbeat=6",
+    "delta_ppm=75,heartbeat=5",
+    "delta_ppm=75,heartbeat=6",
+    "delta_ppm=100,heartbeat=6"
+  ],
+  "reselection": false,
+  "selected_metrics": {
+    "delta_threshold": 25.0,
+    "heartbeat": 3.0,
+    "tx_reduction": 0.7282692261199624,
+    "mae": 9.224011897727348,
+    "recall": 0.9903147699757868,
+    "aoi": 1.4430765044316591,
+    "violation_score": 0.02489021085859417,
+    "pareto": true,
+    "all_constraints_satisfied": false
+  }
+}

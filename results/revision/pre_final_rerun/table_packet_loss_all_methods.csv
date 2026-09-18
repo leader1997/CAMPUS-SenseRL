@@ -1,0 +1,21 @@
+Method,Packet loss (%),Configuration,result_source,n_runs,Transmission reduction (%),MAE (ppm),Precision,Recall,F1,AoI,Constraints (k/n),MAE pass,Event pass,AoI pass
+CAMPUS-SenseRL (KL-CMAPPO),0,tau=0.5,new_evaluation,5,77.79 ± 0.72,8.742 ± 0.138,0.9849 ± 0.0064,0.9944 ± 0.0014,0.9896 ± 0.0038,1.928 ± 0.083,5/5,5/5,5/5,5/5
+CAMPUS-SenseRL (KL-CMAPPO),10,tau=0.5,new_evaluation,5,76.06 ± 0.76,8.976 ± 0.134,0.9687 ± 0.0046,0.9875 ± 0.0008,0.9780 ± 0.0027,1.998 ± 0.083,3/5,3/5,5/5,5/5
+CAMPUS-SenseRL (KL-CMAPPO),20,tau=0.5,new_evaluation,5,73.99 ± 0.80,9.253 ± 0.130,0.9539 ± 0.0032,0.9754 ± 0.0003,0.9645 ± 0.0018,2.087 ± 0.082,0/5,0/5,0/5,5/5
+CAMPUS-SenseRL (KL-CMAPPO),40,tau=0.5,new_evaluation,5,68.43 ± 0.87,9.975 ± 0.106,0.9182 ± 0.0040,0.9475 ± 0.0006,0.9326 ± 0.0024,2.370 ± 0.081,0/5,0/5,0/5,5/5
+Delta + heartbeat,0,"delta_ppm=25,heartbeat=3",new_evaluation,1,72.83,9.224,0.9501,0.9903,0.9698,1.443,0/1,0/1,1/1,1/1
+Delta + heartbeat,10,"delta_ppm=25,heartbeat=3",new_evaluation,5,70.85 ± 0.02,9.493 ± 0.016,0.9358 ± 0.0050,0.9814 ± 0.0025,0.9580 ± 0.0032,1.516 ± 0.002,0/5,0/5,0/5,5/5
+Delta + heartbeat,20,"delta_ppm=25,heartbeat=3",new_evaluation,5,68.53 ± 0.03,9.778 ± 0.022,0.9226 ± 0.0075,0.9685 ± 0.0034,0.9450 ± 0.0046,1.610 ± 0.001,0/5,0/5,0/5,5/5
+Delta + heartbeat,40,"delta_ppm=25,heartbeat=3",new_evaluation,5,62.36 ± 0.06,10.500 ± 0.030,0.8924 ± 0.0062,0.9412 ± 0.0085,0.9161 ± 0.0052,1.908 ± 0.003,0/5,0/5,0/5,5/5
+Fixed-60,0,interval_steps=4 (60 min),new_evaluation,1,75.27,11.335,0.8563,0.8874,0.8716,1.885,0/1,0/1,0/1,1/1
+Fixed-60,10,interval_steps=4 (60 min),new_evaluation,5,75.27,11.891 ± 0.030,0.8457 ± 0.0062,0.8797 ± 0.0085,0.8623 ± 0.0045,2.341 ± 0.008,0/5,0/5,0/5,5/5
+Fixed-60,20,interval_steps=4 (60 min),new_evaluation,5,75.27,12.516 ± 0.077,0.8377 ± 0.0107,0.8697 ± 0.0126,0.8533 ± 0.0043,2.902 ± 0.013,0/5,0/5,0/5,5/5
+Fixed-60,40,interval_steps=4 (60 min),new_evaluation,5,75.27,14.154 ± 0.145,0.8150 ± 0.0140,0.8479 ± 0.0145,0.8310 ± 0.0090,4.615 ± 0.028,0/5,0/5,0/5,0/5
+Fixed-75,0,interval_steps=5 (75 min),new_evaluation,1,80.02,11.755,0.8431,0.8850,0.8636,2.390,0/1,0/1,0/1,1/1
+Fixed-75,10,interval_steps=5 (75 min),new_evaluation,5,80.02,12.375 ± 0.040,0.8293 ± 0.0041,0.8799 ± 0.0058,0.8539 ± 0.0048,2.940 ± 0.008,0/5,0/5,0/5,5/5
+Fixed-75,20,interval_steps=5 (75 min),new_evaluation,5,80.02,13.074 ± 0.079,0.8103 ± 0.0137,0.8634 ± 0.0047,0.8360 ± 0.0072,3.637 ± 0.034,0/5,0/5,0/5,0/5
+Fixed-75,40,interval_steps=5 (75 min),new_evaluation,5,80.02,14.822 ± 0.031,0.7941 ± 0.0117,0.8310 ± 0.0298,0.8119 ± 0.0177,5.694 ± 0.032,0/5,0/5,0/5,0/5
+Semantic expert,0,frozen_expert_thresholds,new_evaluation,1,73.89,7.219,0.9880,0.9988,0.9934,1.749,1/1,1/1,1/1,1/1
+Semantic expert,10,frozen_expert_thresholds,new_evaluation,5,72.20 ± 0.04,7.601 ± 0.013,0.9715 ± 0.0042,0.9898 ± 0.0030,0.9806 ± 0.0035,1.826 ± 0.003,5/5,5/5,5/5,5/5
+Semantic expert,20,frozen_expert_thresholds,new_evaluation,5,70.17 ± 0.04,8.020 ± 0.022,0.9542 ± 0.0027,0.9775 ± 0.0047,0.9657 ± 0.0021,1.924 ± 0.003,0/5,5/5,0/5,5/5
+Semantic expert,40,frozen_expert_thresholds,new_evaluation,5,64.74 ± 0.09,9.053 ± 0.014,0.9193 ± 0.0056,0.9484 ± 0.0075,0.9336 ± 0.0056,2.221 ± 0.004,0/5,0/5,0/5,5/5

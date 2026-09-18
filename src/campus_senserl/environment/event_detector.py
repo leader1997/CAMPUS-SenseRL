@@ -143,8 +143,10 @@ class EventDetector:
         # Category-specific TP/FN (server uses same category detector)
         tp_high = true_cats["high_co2"] & server_cats["high_co2"] & valid
         fn_high = true_cats["high_co2"] & ~server_cats["high_co2"] & valid
+        fp_high = ~true_cats["high_co2"] & server_cats["high_co2"] & valid
         tp_rapid = true_cats["rapid_rise"] & server_cats["rapid_rise"] & valid
         fn_rapid = true_cats["rapid_rise"] & ~server_cats["rapid_rise"] & valid
+        fp_rapid = ~true_cats["rapid_rise"] & server_cats["rapid_rise"] & valid
         return {
             "true": true_e & valid,
             "server": server_e & valid,
@@ -156,6 +158,8 @@ class EventDetector:
             "true_rapid_rise": true_cats["rapid_rise"] & valid,
             "tp_high_co2": tp_high,
             "fn_high_co2": fn_high,
+            "fp_high_co2": fp_high,
             "tp_rapid_rise": tp_rapid,
             "fn_rapid_rise": fn_rapid,
+            "fp_rapid_rise": fp_rapid,
         }

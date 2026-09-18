@@ -1,0 +1,11 @@
+Method,Configuration,result_source,n_runs,Transmission reduction (%),MAE (ppm),Precision,Recall,F1,AoI,Constraints (k/n),MAE pass,Event pass,AoI pass
+Fixed-15,interval_steps=1 (15 min),new_evaluation,1,0.00,N/A,1.0000,1.0000,1.0000,0.001,N/A (full-transmission reference),N/A,1/1,1/1
+Fixed-30,interval_steps=2 (30 min),new_evaluation,1,49.95,9.660,0.9026,0.9310,0.9166,0.601,0/1,0/1,0/1,1/1
+Fixed-45,interval_steps=3 (45 min),new_evaluation,1,66.69,10.474,0.8578,0.9056,0.8810,1.202,0/1,0/1,0/1,1/1
+Fixed-60,interval_steps=4 (60 min),new_evaluation,1,75.27,11.335,0.8563,0.8874,0.8716,1.885,0/1,0/1,0/1,1/1
+Fixed-75,interval_steps=5 (75 min),new_evaluation,1,80.02,11.755,0.8431,0.8850,0.8636,2.390,0/1,0/1,0/1,1/1
+Fixed-90,interval_steps=6 (90 min),new_evaluation,1,83.36,12.517,0.8316,0.8608,0.8459,3.007,0/1,0/1,0/1,1/1
+Delta + heartbeat,"delta_ppm=25,heartbeat=3",new_evaluation,1,72.83,9.224,0.9501,0.9903,0.9698,1.443,0/1,0/1,1/1,1/1
+Semantic expert,frozen_expert_thresholds,new_evaluation,1,73.89,7.219,0.9880,0.9988,0.9934,1.749,1/1,1/1,1/1,1/1
+BC initialization,tau=0.5 (legacy mean of 5),legacy_frozen,5,79.76,9.205,0.9702,0.9930,0.9815,2.126,0/1,0/1,1/1,1/1
+CAMPUS-SenseRL (KL-CMAPPO),tau=0.5,new_evaluation,5,77.79 ± 0.72,8.742 ± 0.138,0.9849 ± 0.0064,0.9944 ± 0.0014,0.9896 ± 0.0038,1.928 ± 0.083,5/5,5/5,5/5,5/5
