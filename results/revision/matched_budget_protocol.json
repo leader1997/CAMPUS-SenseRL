@@ -1,0 +1,21 @@
+{
+  "targets_tx_reduction": [
+    0.75,
+    0.78,
+    0.8
+  ],
+  "split": "val",
+  "cohort": "final",
+  "kl": {
+    "type": "direct",
+    "procedure": "Evaluate frozen KL-CMAPPO actors on a modest tau grid. For each target, select the measured tau whose mean TX reduction is closest to the target. Report that tau's measured MAE/recall/AoI (mean\u00b1sample SD over seeds). Do not interpolate MAE or recall.",
+    "result_source": "direct_measured",
+    "primary": true
+  },
+  "bc": {
+    "type": "interpolated_legacy",
+    "procedure": "Linear interpolation of MAE/recall vs TX reduction from frozen scientific_validation CSVs (ddof=0 in the source file). Checkpoints were not present for a direct sweep.",
+    "result_source": "interpolated_legacy",
+    "primary": false
+  }
+}

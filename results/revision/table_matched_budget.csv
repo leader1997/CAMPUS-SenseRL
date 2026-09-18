@@ -1,7 +1,7 @@
-Method,Configuration,n_runs,Transmission reduction (%),MAE (ppm),Precision,Recall,F1,AoI,Constraints satisfied
-BC initialization,interpolated_target=75.0%,1,75.00,7.967,0.9944,0.9976,N/A,1.700,True
-BC initialization,interpolated_target=78.0%,1,78.00,8.923,0.9772,0.9932,N/A,1.918,True
-BC initialization,interpolated_target=80.0%,1,80.00,9.255,0.9685,0.9927,N/A,2.155,False
-CAMPUS-SenseRL (KL-CMAPPO),interpolated_target=75.0%,1,75.00,7.936,0.9951,0.9979,N/A,1.719,True
-CAMPUS-SenseRL (KL-CMAPPO),interpolated_target=78.0%,1,78.00,8.787,0.9833,0.9939,N/A,1.947,True
-CAMPUS-SenseRL (KL-CMAPPO),interpolated_target=80.0%,1,80.00,9.174,0.9732,0.9931,N/A,2.176,False
+Method,Configuration,result_source,n_runs,Transmission reduction (%),MAE (ppm),Precision,Recall,F1,AoI,Constraints (k/n),MAE pass,Event pass,AoI pass
+BC initialization,interpolated_target=75.0%,interpolated_legacy,5,75.00,7.967,0.9944,0.9976,N/A,1.700,1/1,1/1,1/1,1/1
+BC initialization,interpolated_target=78.0%,interpolated_legacy,5,78.00,8.923,0.9772,0.9932,N/A,1.918,1/1,1/1,1/1,1/1
+BC initialization,interpolated_target=80.0%,interpolated_legacy,5,80.00,9.255,0.9685,0.9927,N/A,2.155,0/1,0/1,1/1,1/1
+CAMPUS-SenseRL (KL-CMAPPO),tau=0.40 (nearest to 75%),direct_measured,5,75.53 ± 0.70,8.070 ± 0.189,0.9940 ± 0.0012,0.9981 ± 0.0007,0.9960 ± 0.0008,1.752 ± 0.049,5/5,5/5,5/5,5/5
+CAMPUS-SenseRL (KL-CMAPPO),tau=0.50 (nearest to 78%),direct_measured,5,77.79 ± 0.72,8.742 ± 0.138,0.9849 ± 0.0064,0.9944 ± 0.0014,0.9896 ± 0.0038,1.928 ± 0.083,5/5,5/5,5/5,5/5
+CAMPUS-SenseRL (KL-CMAPPO),tau=0.60 (nearest to 80%),direct_measured,5,80.07 ± 0.60,9.201 ± 0.146,0.9732 ± 0.0063,0.9930 ± 0.0005,0.9830 ± 0.0032,2.185 ± 0.078,0/5,0/5,5/5,5/5

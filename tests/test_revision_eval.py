@@ -6,10 +6,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from campus_senserl.environment.communication_model import TRANSMIT
+from campus_senserl.environment.communication_model import SKIP, TRANSMIT
 from campus_senserl.environment.trace_environment import TraceDrivenCampusEnv, build_synthetic_trace
 from campus_senserl.evaluation.revision_checks import RevisionCheckError, validate_master
-from campus_senserl.evaluation.revision_metrics import constraint_flags, standardize_eval
+from campus_senserl.evaluation.revision_metrics import constraint_flags, sample_sd, standardize_eval
 from campus_senserl.evaluation.rl_policy_eval import evaluate_policy
 from campus_senserl.rl.fixed_policies import FixedIntervalPolicy
 
@@ -82,6 +82,78 @@ def test_fixed15_mae_is_undefined_without_skips(minimal_rl_cfg):
     flags = constraint_flags(m["mae_skipped"], m["event_recall"], m["mean_aoi_raw"])
     assert flags[0] == "N/A"
     assert flags[3] == "N/A"
+
+
+def test_fixed_interval_clock_ignores_patterned_missingness(minimal_rl_cfg):
+    """Periodic TX is time-grid aligned: missingness does not shift later slots."""
+    n_steps, n_sensors, k = 16, 2, 3
+    trace = build_synthetic_trace(n_steps=n_steps, n_sensors=n_sensors, seed=3)
+    trace["natural_missing"][:] = False
+    trace["local_available"] = np.ones((n_steps, n_sensors), dtype=bool)
+    # Knock out a scheduled TX slot (t=3) and an off-grid slot (t=4) on sensor 0.
+    trace["local_available"][3, 0] = False
+    trace["local_available"][4, 0] = False
+    trace["natural_missing"][3, 0] = True
+    cfg = dict(minimal_rl_cfg)
+    cfg.setdefault("environment", {})["graph"] = "identity"
+    env = TraceDrivenCampusEnv(cfg=cfg, trace=trace, multi_agent=True)
+    pol = FixedIntervalPolicy(interval_steps=k)
+    obs, _ = env.reset(seed=0)
+    pol.reset()
+    scheduled = []
+    attempted = []
+    for t in range(n_steps - 1):
+        local = env.local_available[t]
+        actions = pol.act(obs, local_available=local)
+        scheduled.append(t % k == 0)
+        attempted.append(actions.copy())
+        obs, _, terminated, truncated, _ = env.step(actions)
+        if terminated or truncated:
+            break
+    attempted = np.asarray(attempted)
+    for t, was_scheduled in enumerate(scheduled):
+        if not was_scheduled:
+            assert np.all(attempted[t] == SKIP)
+        else:
+            for i in range(n_sensors):
+                if trace["local_available"][t, i]:
+                    assert attempted[t, i] == TRANSMIT
+                else:
+                    assert attempted[t, i] == SKIP
+    # t=3 was a scheduled slot but missing on sensor 0; t=6 is still a TX slot.
+    assert 3 % k == 0 and 6 % k == 0
+    assert attempted[3, 0] == SKIP
+    assert attempted[6, 0] == TRANSMIT
+    assert attempted[4, 0] == SKIP  # off-grid missingness does not create a catch-up TX
+
+
+def test_tx_denominator_is_locally_available_slots_only(minimal_rl_cfg):
+    n_steps, n_sensors = 12, 3
+    trace = build_synthetic_trace(n_steps=n_steps, n_sensors=n_sensors, seed=4)
+    trace["natural_missing"][:] = False
+    trace["local_available"] = np.ones((n_steps, n_sensors), dtype=bool)
+    trace["local_available"][1, :] = False
+    trace["local_available"][5, 0] = False
+    cfg = dict(minimal_rl_cfg)
+    cfg.setdefault("environment", {})["graph"] = "identity"
+    env = TraceDrivenCampusEnv(cfg=cfg, trace=trace, multi_agent=True)
+    pol = FixedIntervalPolicy(interval_steps=2)
+
+    def act(obs, *, local_available=None):
+        return pol.act(obs, local_available=local_available)
+
+    max_steps = 10
+    m = evaluate_policy(env, act, max_steps=max_steps, seed=0)
+    expected_available = int(trace["local_available"][:max_steps].sum())
+    assert m["n_locally_available"] == expected_available
+    assert m["n_tx"] <= expected_available
+    assert m["transmission_reduction_pct"] == pytest.approx(
+        (1.0 - m["n_tx"] / m["n_locally_available"]) * 100.0, abs=1e-9
+    )
+
+
+def test_sample_sd_uses_ddof_one():
+    assert sample_sd([1.0, 2.0, 3.0]) == pytest.approx(1.0)
 
 
 def test_validate_master_rejects_bad_reduction():

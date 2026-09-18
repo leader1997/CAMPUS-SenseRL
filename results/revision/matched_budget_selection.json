@@ -1,0 +1,27 @@
+{
+  "kl": "direct",
+  "bc": "interpolated_legacy",
+  "selections": [
+    {
+      "target_tx_reduction": 0.75,
+      "selected_tau": 0.4,
+      "measured_mean_tx_reduction": 0.7552750042308343,
+      "abs_gap": 0.005275004230834268,
+      "n_seeds": 5
+    },
+    {
+      "target_tx_reduction": 0.78,
+      "selected_tau": 0.5,
+      "measured_mean_tx_reduction": 0.7779019897009405,
+      "abs_gap": 0.0020980102990595384,
+      "n_seeds": 5
+    },
+    {
+      "target_tx_reduction": 0.8,
+      "selected_tau": 0.6,
+      "measured_mean_tx_reduction": 0.8006614607257694,
+      "abs_gap": 0.0006614607257693361,
+      "n_seeds": 5
+    }
+  ]
+}

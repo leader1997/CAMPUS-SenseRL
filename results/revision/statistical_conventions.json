@@ -1,0 +1,21 @@
+{
+  "dispersion": "sample standard deviation",
+  "ddof": 1,
+  "n": "number of independent policy runs, except packet-loss deterministic methods where n is the number of shared loss-mask replicates",
+  "kl_seeds": [
+    42,
+    123,
+    2024,
+    3407,
+    9999
+  ],
+  "frozen_test_seed_original_paper_report": 123,
+  "packet_loss_kl": "SD is across 5 policies after averaging 5 shared masks per policy",
+  "legacy_scientific_validation_csvs": {
+    "path": "results/rl_final/scientific_validation/",
+    "ddof": 0,
+    "not_rewritten": true,
+    "paper_facing_revision": "use results/revision/ with ddof=1"
+  },
+  "bc_val_test_rows": "legacy pre-averaged summaries may have n_runs=1 on a mean-of-5 row; labelled result_source=legacy_frozen"
+}

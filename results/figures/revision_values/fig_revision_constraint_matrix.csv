@@ -1,0 +1,11 @@
+method,label,MAE,Event,AoI,All,k_n
+fixed_15,Fixed-15,N/A,True,True,N/A,N/A (full-transmission reference)
+fixed_30,Fixed-30,False,False,True,False,0/1
+fixed_45,Fixed-45,False,False,True,False,0/1
+fixed_60,Fixed-60,False,False,True,False,0/1
+fixed_75,Fixed-75,False,False,True,False,0/1
+fixed_90,Fixed-90,False,False,True,False,0/1
+delta_plus_heartbeat,Delta + heartbeat,False,True,True,False,0/1
+semantic_expert,Semantic expert,True,True,True,True,1/1
+campus_senserl_bc,BC initialization,False,True,True,False,0/1
+cmappo_kl,CAMPUS-SenseRL (KL-CMAPPO),True,True,True,True,5/5

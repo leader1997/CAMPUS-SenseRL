@@ -100,3 +100,52 @@ def test_classify_detection_helper():
     out = det.classify_detection(true_values=true_v, server_values=server_v)
     assert out["tp"][0] and not out["fn"][0]
     assert not out["true"][1]
+
+
+def test_classify_transmitted_event_is_tp():
+    det = EventDetector(primary_threshold_ppm=1000, rapid_increase_ppm=150)
+    out = det.classify_detection(
+        true_values=np.array([1200.0]),
+        server_values=np.array([1200.0]),
+        prev_true=np.array([400.0]),
+        prev_server=np.array([400.0]),
+    )
+    assert out["true"][0] and out["server"][0] and out["tp"][0]
+    assert not out["fn"][0] and not out["fp"][0]
+
+
+def test_classify_skip_locf_still_high_is_tp():
+    """Skip + LOCF still ≥1000: combined primary event is TP, not FN."""
+    det = EventDetector(primary_threshold_ppm=1000, rapid_increase_ppm=150)
+    out = det.classify_detection(
+        true_values=np.array([1100.0]),
+        server_values=np.array([1100.0]),  # LOCF of last TX
+        prev_true=np.array([1100.0]),
+        prev_server=np.array([1100.0]),
+    )
+    assert out["true"][0] and out["server"][0] and out["tp"][0]
+    assert not out["fn"][0]
+
+
+def test_classify_skip_wrong_recon_is_fn():
+    det = EventDetector(primary_threshold_ppm=1000, rapid_increase_ppm=150)
+    out = det.classify_detection(
+        true_values=np.array([1200.0]),
+        server_values=np.array([400.0]),
+        prev_true=np.array([400.0]),
+        prev_server=np.array([400.0]),
+    )
+    assert out["true"][0] and out["fn"][0]
+    assert not out["tp"][0] and not out["fp"][0]
+
+
+def test_classify_false_server_event_is_fp():
+    det = EventDetector(primary_threshold_ppm=1000, rapid_increase_ppm=150)
+    out = det.classify_detection(
+        true_values=np.array([400.0]),
+        server_values=np.array([1200.0]),
+        prev_true=np.array([400.0]),
+        prev_server=np.array([400.0]),
+    )
+    assert not out["true"][0] and out["server"][0] and out["fp"][0]
+    assert not out["tp"][0] and not out["fn"][0]

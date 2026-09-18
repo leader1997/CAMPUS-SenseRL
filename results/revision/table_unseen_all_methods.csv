@@ -1,11 +1,11 @@
-Method,Configuration,n_runs,Transmission reduction (%),MAE (ppm),Precision,Recall,F1,AoI,Constraints satisfied
-BC initialization,tau=0.5,5,79.72 ± 0.13,8.959 ± 0.048,0.9728 ± 0.0041,0.9950 ± 0.0004,0.9838 ± 0.0022,2.126 ± 0.022,False
-CAMPUS-SenseRL (KL-CMAPPO),tau=0.5,5,77.83 ± 0.70,8.495 ± 0.130,0.9913 ± 0.0044,0.9964 ± 0.0007,0.9938 ± 0.0020,1.935 ± 0.086,True
-Delta + heartbeat,"delta_ppm=25,heartbeat=3",1,72.79,9.441,0.9560,0.9878,0.9716,1.444,False
-Fixed-15,interval_steps=1 (15 min),1,0.00,N/A,1.0000,1.0000,1.0000,0.000,N/A
-Fixed-30,interval_steps=2 (30 min),1,49.88,11.635,0.8880,0.8627,0.8752,0.547,False
-Fixed-45,interval_steps=3 (45 min),1,66.74,13.423,0.8149,0.7831,0.7987,1.129,False
-Fixed-60,interval_steps=4 (60 min),1,75.10,14.769,0.7781,0.7433,0.7603,1.760,False
-Fixed-75,interval_steps=5 (75 min),1,79.95,15.643,0.7419,0.6913,0.7157,2.203,False
-Fixed-90,interval_steps=6 (90 min),1,83.33,16.625,0.7140,0.7019,0.7079,2.733,False
-Semantic expert,frozen_expert_thresholds,1,74.34,7.230,0.9927,0.9984,0.9955,1.773,True
+Method,Configuration,result_source,n_runs,Transmission reduction (%),MAE (ppm),Precision,Recall,F1,AoI,Constraints (k/n),MAE pass,Event pass,AoI pass
+Fixed-15,interval_steps=1 (15 min),new_evaluation,1,0.00,N/A,1.0000,1.0000,1.0000,0.000,N/A (full-transmission reference),N/A,1/1,1/1
+Fixed-30,interval_steps=2 (30 min),new_evaluation,1,49.88,11.635,0.8880,0.8627,0.8752,0.547,0/1,0/1,0/1,1/1
+Fixed-45,interval_steps=3 (45 min),new_evaluation,1,66.74,13.423,0.8149,0.7831,0.7987,1.129,0/1,0/1,0/1,1/1
+Fixed-60,interval_steps=4 (60 min),new_evaluation,1,75.10,14.769,0.7781,0.7433,0.7603,1.760,0/1,0/1,0/1,1/1
+Fixed-75,interval_steps=5 (75 min),new_evaluation,1,79.95,15.643,0.7419,0.6913,0.7157,2.203,0/1,0/1,0/1,1/1
+Fixed-90,interval_steps=6 (90 min),new_evaluation,1,83.33,16.625,0.7140,0.7019,0.7079,2.733,0/1,0/1,0/1,1/1
+Delta + heartbeat,"delta_ppm=25,heartbeat=3",new_evaluation,1,72.79,9.441,0.9560,0.9878,0.9716,1.444,0/1,0/1,1/1,1/1
+Semantic expert,frozen_expert_thresholds,new_evaluation,1,74.34,7.230,0.9927,0.9984,0.9955,1.773,1/1,1/1,1/1,1/1
+BC initialization,tau=0.5,legacy_frozen,5,79.72 ± 0.13,8.959 ± 0.048,0.9728 ± 0.0041,0.9950 ± 0.0004,0.9838 ± 0.0022,2.126 ± 0.022,4/5,4/5,5/5,5/5
+CAMPUS-SenseRL (KL-CMAPPO),tau=0.5,new_evaluation,5,77.83 ± 0.70,8.495 ± 0.130,0.9913 ± 0.0044,0.9964 ± 0.0007,0.9938 ± 0.0020,1.935 ± 0.086,5/5,5/5,5/5,5/5

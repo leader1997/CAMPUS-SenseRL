@@ -1,0 +1,22 @@
+{
+  "n_loss_masks": 5,
+  "mask_ids": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "packet_loss_mask_seed": 20260317,
+  "seed_formula": "PACKET_LOSS_MASK_SEED + loss_mask_id",
+  "mode": "independent_slots",
+  "shared_across_methods": true,
+  "rate_zero": "single evaluation; no mask",
+  "aggregation": {
+    "kl_cmappo": "mean over loss_mask_id within policy_run, then mean and sample SD (ddof=1) across policy_run",
+    "deterministic": "mean and sample SD (ddof=1) across loss_mask_id"
+  },
+  "exclude_from_new_figure": [
+    "campus_senserl_bc_legacy_per_attempt"
+  ]
+}

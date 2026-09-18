@@ -1,0 +1,19 @@
+claim,supported,evidence,mae,recall,tx_reduction,constraints,mae_kl,mae_expert,tx_kl,tx_expert,tx_bc,bc_result_source,mae_fixed60,mae_fixed75,mae_delta,delta_cfg,mae_heldout,mae_dev_test,mae_other
+"CAMPUS-SenseRL satisfies VAL constraints (MAE≤9, miss≤1.5%, AoI≤3.5)",yes,VAL all_constraints=True (5/5),8.742403611902981,0.9944309927360774,0.7779019897009405,,,,,,,,,,,,,,
+CAMPUS-SenseRL is feasible on the frozen temporal test split,no,"Test event-miss constraint fails for KL and for every communicating baseline (KL recall=0.9529, required ≥ 0.985). Do not claim test feasibility.",8.612843442936295,0.9529411764705882,,False,,,,,,,,,,,,,
+CAMPUS-SenseRL beats the semantic expert on VAL reconstruction MAE,no,VAL MAE expert=7.219 vs KL=8.742 ppm. Expert has lower MAE; KL saves more TX than the expert.,,,,,8.742403611902981,7.218922792024657,0.7779019897009405,0.7389260933684694,,,,,,,,,
+CAMPUS-SenseRL always transmits less than BC initialization,no,VAL TX reduction KL=77.79% vs BC=79.76%. KL transmits more often than BC at tau=0.5; BC VAL row is legacy_frozen.,,,,,,,0.7779019897009405,,0.7975881826753378,legacy_frozen,,,,,,,
+CAMPUS-SenseRL has lower VAL MAE than Fixed-60 at comparable TX reduction,yes,VAL MAE KL=8.742 vs Fixed-60=11.335; TX↓ KL=77.79% vs Fixed-60=75.27%,,,,,8.742403611902981,,,,,,11.335269101794868,,,,,,
+CAMPUS-SenseRL has lower VAL MAE than Fixed-75,yes,VAL MAE KL=8.742 vs Fixed-75=11.755,,,,,,,,,,,,11.755109070034443,,,,,
+CAMPUS-SenseRL has lower VAL MAE than VAL-selected Delta+heartbeat,yes,"VAL MAE KL=8.742 vs Delta delta_ppm=25,heartbeat=3=9.224; Delta was not constraint-feasible on VAL (MAE>9)",,,,,,,,,,,,,9.224011897727348,"delta_ppm=25,heartbeat=3",,,
+Held-out test MAE remains below 9 ppm for CAMPUS-SenseRL,yes,Held-out TEST MAE=8.495 (n=5),,,,,,,,,,,,,,,8.49505339274015,8.612843442936295,
+Fig05 window plot is primary evidence,no,Fig05 remains illustrative only (results/figures/fig05_window.json).,,,,,,,,,,,,,,,,,
+Matched-budget 75/78/80% MAE/recall for KL are direct rollouts,yes,Primary KL matched-budget uses nearest measured tau on VAL. BC remains interpolated_legacy.,,,,,,,,,,,,,,,,,
+Periodic Fixed-k is time-grid aligned,yes,FixedIntervalPolicy increments the clock every env step; missing slots convert TRANSMIT→SKIP without shifting later TX times.,,,,,,,,,,,,,,,,,
+frozen_test_KL_vs_Fixed-60_MAE,comparison,KL MAE=8.613 vs other MAE=10.551,,,,,8.612843442936295,,,,,,,,,,,,10.550982955402484
+frozen_test_KL_vs_Fixed-75_MAE,comparison,KL MAE=8.613 vs other MAE=10.849,,,,,8.612843442936295,,,,,,,,,,,,10.849440974722848
+frozen_test_KL_vs_Delta_MAE,comparison,KL MAE=8.613 vs other MAE=8.790,,,,,8.612843442936295,,,,,,,,,,,,8.790012455238985
+frozen_test_KL_vs_expert_MAE,comparison,KL MAE=8.613 vs other MAE=7.216,,,,,8.612843442936295,,,,,,,,,,,,7.216203874012153
+heldout_test_KL_vs_Fixed-60_MAE,comparison,KL MAE=8.495 vs other MAE=14.769,,,,,8.49505339274015,,,,,,,,,,,,14.769178957440246
+heldout_test_KL_vs_Delta_MAE,comparison,KL MAE=8.495 vs other MAE=9.441,,,,,8.49505339274015,,,,,,,,,,,,9.440991933074397
+heldout_test_KL_vs_expert_MAE,comparison,KL MAE=8.495 vs other MAE=7.230,,,,,8.49505339274015,,,,,,,,,,,,7.230393528528911

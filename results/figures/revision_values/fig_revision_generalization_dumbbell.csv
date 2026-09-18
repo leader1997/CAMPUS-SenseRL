@@ -1,0 +1,7 @@
+method,label,mae_dev_test,mae_heldout_test,n_dev,n_heldout
+fixed_60,Fixed-60,10.550982955402484,14.769178957440246,1,1
+fixed_75,Fixed-75,10.849440974722848,15.642808150329348,1,1
+delta_plus_heartbeat,Delta + heartbeat,8.790012455238985,9.440991933074397,1,1
+semantic_expert,Semantic expert,7.216203874012153,7.230393528528911,1,1
+campus_senserl_bc,BC initialization,9.004188944374237,8.958774368220675,1,5
+cmappo_kl,CAMPUS-SenseRL (KL-CMAPPO),8.612843442936295,8.49505339274015,5,5
